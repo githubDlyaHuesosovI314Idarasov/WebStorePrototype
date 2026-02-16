@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [ master, dev ]
   pull_request:
-    branches: [ main, dev ]
+    branches: [ master, dev ]
 
 env:
   DOTNET_VERSION: '10.0.103' 
@@ -19,8 +19,8 @@ jobs:
       postgres:
         image: postgres:18
         env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: testdb
+          POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
+          POSTGRES_DB: ${{secrets.POSTGRES_DEV_DB}}
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -93,10 +93,11 @@ jobs:
         run: npm run test -- --watch=false --browsers=ChromeHeadless
         working-directory: ./frontend
 
-  docker-build:
+  deploy-dev:
     runs-on: ubuntu-latest
     needs: [backend-test, frontend-test]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+    environment: development
     
     steps:
       - name: Checkout code
@@ -111,7 +112,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
       
-      - name: Build and push backend
+      - name: Build and push backend (dev)
         uses: docker/build-push-action@v5
         with:
           context: ./backend
@@ -121,7 +122,46 @@ jobs:
             ${{ secrets.DOCKER_USERNAME }}/myapp-backend:latest
             ${{ secrets.DOCKER_USERNAME }}/myapp-backend:${{ github.sha }}
       
-      - name: Build and push frontend
+      - name: Build and push frontend (dev)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:latest
+            ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:${{ github.sha }}
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: [backend-test, frontend-test]
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    environment:
+      name: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+      
+      - name: Build and push backend (dev)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/myapp-backend:latest
+            ${{ secrets.DOCKER_USERNAME }}/myapp-backend:${{ github.sha }}
+      
+      - name: Build and push frontend (dev)
         uses: docker/build-push-action@v5
         with:
           context: ./frontend

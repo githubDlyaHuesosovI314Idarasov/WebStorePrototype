@@ -79,7 +79,7 @@ jobs:
       
       - name: Install dependencies
         run: npm ci
-        working-directory: ./
+        working-directory: ./webstoreapp.client
       
       - name: Lint
         run: npm run lint

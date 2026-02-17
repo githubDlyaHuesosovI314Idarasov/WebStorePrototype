@@ -1,4 +1,4 @@
-const { join } = require('path');
+// @ts-check
 
 /** @type { import("karma").Config } */
 module.exports = function (config) {
@@ -10,7 +10,6 @@ module.exports = function (config) {
       require('karma-chrome-launcher'),
       require('karma-jasmine-html-reporter'),
       require('karma-coverage'),
-      require('@angular/build/plugins/karma'),
     ],
     client: {
       jasmine: {},

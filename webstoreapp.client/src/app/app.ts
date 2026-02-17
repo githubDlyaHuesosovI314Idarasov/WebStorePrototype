@@ -11,7 +11,6 @@ import { WeatherForecast } from './weather-forecast';
 export class App implements OnInit {
   public forecasts: WeatherForecast[] = [];
   private http = inject(HttpClient);
-  constructor() {}
 
   ngOnInit() {
     this.getForecasts();

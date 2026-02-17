@@ -1,3 +1,1 @@
-export interface WeatherForecast {
-  [key: string]: unknown;
-}
+export type WeatherForecast = unknown;

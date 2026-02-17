@@ -1,17 +1,17 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { WeatherForecast } from './weather-forecast';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.html',
-  standalone: false,
+  standalone: true,
   styleUrl: './app.css'
 })
 export class App implements OnInit {
   public forecasts: WeatherForecast[] = [];
-
-  constructor(private http: HttpClient) {}
+  private http = inject(HttpClient);
+  constructor() {}
 
   ngOnInit() {
     this.getForecasts();

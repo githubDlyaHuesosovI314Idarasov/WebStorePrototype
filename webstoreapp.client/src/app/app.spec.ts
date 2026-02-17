@@ -42,4 +42,4 @@ describe('App', () => {
 
     expect(component.forecasts).toEqual(mockForecasts);
   });
-};
+});

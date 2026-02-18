@@ -115,7 +115,7 @@ jobs:
       - name: Build and push backend (dev)
         uses: docker/build-push-action@v5
         with:
-          context: ./WebStorePrototype.Server
+          context: .
           file: ./WebStorePrototype.Server/Dockerfile
           push: true
           tags: |
@@ -125,7 +125,7 @@ jobs:
       - name: Build and push frontend (dev)
         uses: docker/build-push-action@v5
         with:
-          context: ./webstoreprototype.client
+          context: .
           file: ./webstoreprototype.client/Dockerfile
           push: true
           tags: |
@@ -154,7 +154,7 @@ jobs:
       - name: Build and push backend (dev)
         uses: docker/build-push-action@v5
         with:
-          context: ./WebStorePrototype.Server
+          context: .
           file: ./WebStorePrototype.Server/Dockerfile
           push: true
           tags: |
@@ -164,7 +164,7 @@ jobs:
       - name: Build and push frontend (dev)
         uses: docker/build-push-action@v5
         with:
-          context: ./WebStorePrototype.client
+          context: .
           file: ./WebStorePrototype.client/Dockerfile
           push: true
           tags: |

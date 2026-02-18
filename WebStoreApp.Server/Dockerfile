@@ -20,7 +20,6 @@ FROM with-node AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["WebStoreApp.Server/WebStoreApp.Server.csproj", "WebStoreApp.Server/"]
-COPY ["webstoreapp.client/webstoreapp.client.esproj", "webstoreapp.client/"]
 RUN dotnet restore "./WebStoreApp.Server/WebStoreApp.Server.csproj"
 COPY . .
 WORKDIR "/src/WebStoreApp.Server"

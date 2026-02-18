@@ -19,19 +19,19 @@ RUN npm install -g @angular/cli
 FROM with-node AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["WebStoreApp.Server/WebStoreApp.Server.csproj", "WebStoreApp.Server/"]
-RUN dotnet restore "./WebStoreApp.Server/WebStoreApp.Server.csproj"
+COPY ["WebStorePrototype.Server/WebStorePrototype.Server.csproj", "WebStorePrototype.Server/"]
+RUN dotnet restore "./WebStorePrototype.Server/WebStorePrototype.Server.csproj"
 COPY . .
-WORKDIR "/src/WebStoreApp.Server"
-RUN dotnet build "./WebStoreApp.Server.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/WebStorePrototype.Server"
+RUN dotnet build "./WebStorePrototype.Server.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Этот этап используется для публикации проекта службы, который будет скопирован на последний этап
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./WebStoreApp.Server.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./WebStorePrototype.Server.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # Этот этап используется в рабочей среде или при запуске из VS в обычном режиме (по умолчанию, когда конфигурация отладки не используется)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "WebStoreApp.Server.dll"]
+ENTRYPOINT ["dotnet", "WebStorePrototype.Server.dll"]

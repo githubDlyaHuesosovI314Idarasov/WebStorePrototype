@@ -1,8 +1,8 @@
 <Solution>
   <Project Path="DAL/DAL.csproj" Id="2a3db3c0-542e-434e-b27b-b258ab5d4a6d" />
-  <Project Path="webstoreapp.client/webstoreprototype.client.esproj">
+  <Project Path="webstoreprototype.client/webstoreprototype.client.esproj">
     <Build />
     <Deploy />
   </Project>
-  <Project Path="WebStoreApp.Server/WebStorePrototype.Server.csproj" />
+  <Project Path="WebStorePrototype.Server/WebStorePrototype.Server.csproj" />
 </Solution>

@@ -38,5 +38,10 @@ namespace DAL.Repos
         {
             _dbSet.Remove(entity);
         }
+
+        public async Task SaveAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 }

@@ -31,6 +31,7 @@ namespace WebStorePrototype.Server.Services
             }
             return null;
         }
+        
         public async Task<IEnumerable<T>> GetAllFromRedis()
         {
             var entities = new List<T>();

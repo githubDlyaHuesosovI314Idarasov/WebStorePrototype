@@ -1,4 +1,5 @@
-﻿using DAL.EF;
+﻿using Auth0.AspNetCore.Authentication;
+using DAL.EF;
 using Microsoft.EntityFrameworkCore;
 
 namespace WebStorePrototype.Server.Extensions
@@ -26,6 +27,16 @@ namespace WebStorePrototype.Server.Extensions
         {
             services.AddDbContext<ExternalWebStoreDBContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString("Dev")));
+        }
+
+        public static void Add0Auth(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddAuth0WebAppAuthentication(options =>
+            {
+                options.Domain = configuration["Auth0:Domain"];
+                options.ClientId = configuration["Auth0:ClientId"];
+                options.ClientSecret = configuration["Auth0:ClientSecret"];
+            });
         }
     }
 }

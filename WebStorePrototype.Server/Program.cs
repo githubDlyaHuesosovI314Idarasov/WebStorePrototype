@@ -23,6 +23,7 @@ try
     builder.Services.AddOpenApi();
     builder.Services.AddWebStoreDBContext(builder.Configuration);
     builder.Services.AddExternalWebStoreDBContext(builder.Configuration);
+    builder.Services.Add0Auth(builder.Configuration);
     builder.Services.AddStackExchangeRedisCache(x => x.ConfigurationOptions = new ConfigurationOptions()
     {
         EndPoints = { builder.Configuration.GetConnectionString("Redis")! },

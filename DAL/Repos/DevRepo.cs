@@ -6,9 +6,9 @@ using DAL.Models;
 
 namespace DAL.Repos
 {
-    public sealed class DevRepo<T> : BaseRepo<WebStoreDBContext, T> where T : Entity
+    public sealed class DevRepo<T> : BaseRepo<ExternalWebStoreDBContext, T> where T : Entity
     {
-        public DevRepo(WebStoreDBContext context) : base(context)
+        public DevRepo(ExternalWebStoreDBContext context) : base(context)
         {
         }
     }

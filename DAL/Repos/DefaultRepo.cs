@@ -6,9 +6,9 @@ using System.Text;
 
 namespace DAL.Repos
 {
-    public sealed class DefaultRepo<T> : BaseRepo<ExternalWebStoreDBContext, T> where T : Entity
+    public sealed class DefaultRepo<T> : BaseRepo<WebStoreDBContext, T> where T : Entity
     {
-        public DefaultRepo(ExternalWebStoreDBContext context) : base(context)
+        public DefaultRepo(WebStoreDBContext context) : base(context)
         {
         }
     }

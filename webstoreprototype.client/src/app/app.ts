@@ -1,20 +1,19 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, signal, inject} from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { WeatherForecast } from './weather-forecast';
+import { AuthComponent } from './components/auth-component/auth-component';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.html',
+  imports: [CommonModule, AuthComponent],
   standalone: true,
-  styleUrl: './app.css'
+  styleUrl: './app.css',
 })
-export class App implements OnInit {
+export class App  {
   public forecasts: WeatherForecast[] = [];
   private http = inject(HttpClient);
-
-  ngOnInit() {
-    this.getForecasts();
-  }
 
   getForecasts() {
     this.http.get<WeatherForecast[]>('/weatherforecast').subscribe(

@@ -9,6 +9,11 @@ namespace DAL.Models
     {
         public String Name { get; set; } = null!;
         public String Description { get; set; } = null!;
+        public Int64 Price { get; set; }
+        public Int64? DiscountedPrice { get; set; }
+        public Boolean IsOnSale { get; set; }
+        public Boolean IsCouponApplicable { get; set; }
+
         [ForeignKey("CategoryId")]
         public Guid CategoryId { get; set; }
         public Category Category { get; set; } = null!;

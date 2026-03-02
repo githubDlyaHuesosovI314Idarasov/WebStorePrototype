@@ -1,0 +1,13 @@
+<div class="d-flex">    
+    <div class="flex-row">
+        <h3>Your latest viewed products</h3>  
+    </div>
+    <div class="flex-row">
+        @for(viewedProduct of viewedProductsList ;track $index){
+            <div class="flex-column">
+                <app-product-card-component [product]="viewedProduct" [productImages]="viewedProductImagesList"></app-product-card-component>
+            </div>
+        }
+    </div>
+</div>
+

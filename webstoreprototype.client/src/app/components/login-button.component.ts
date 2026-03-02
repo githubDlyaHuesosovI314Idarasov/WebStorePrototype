@@ -5,12 +5,7 @@ import { AuthService } from '@auth0/auth0-angular';
   selector: 'app-login-button',
   standalone: true,
   template: `
-    <button 
-      (click)="loginWithRedirect()" 
-      class="button login"
-    >
-      Log In
-    </button>
+    <button (click)="loginWithRedirect()"  class="button login"> Log In </button>
   `
 })
 export class LoginButtonComponent {

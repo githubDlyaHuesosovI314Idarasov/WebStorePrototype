@@ -1,0 +1,18 @@
+<a [routerLink]="['/details', product.id]">
+    <div class="d-flex">
+        <div class="flex-row"> <!-- :TODO create carousel component for active cursor  -->
+            <app-product-carousel-component [productImages]="productImages"></app-product-carousel-component>
+        </div>
+        <div class="flex-row text-center">
+            {{product.name}} 
+        </div>
+        <div class="flex-row">
+            <div class="flex-column text-start">
+                {{product.price}}
+            </div>
+            <div class="flex-column">
+                <button> </button> <!-- Add to cart button -->
+            </div>
+        </div>
+    </div>
+</a>

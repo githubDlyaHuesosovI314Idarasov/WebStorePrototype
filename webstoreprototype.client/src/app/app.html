@@ -1,1 +1,29 @@
-<app-auth-component></app-auth-component>
+<div>
+  <nav class="navbar navbar-expand-lg bg-body-subtle">
+    <div class="container-fluid text-white">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="navbar-brand text-white" [routerLink]="">WebStorePrototype</a>
+          </li>
+          <li class="nav-item ms-2 me-2">
+            <app-catalogue-button-component></app-catalogue-button-component>
+          </li>
+          <li class="nav-item ms-2 me-2">
+            <app-search-bar-component></app-search-bar-component>
+          </li>
+          <li class="nav-item ms-2 me-2">
+            <app-auth-component></app-auth-component>
+          </li>
+          <li class="nav-item ms-2 me-2">
+            <app-actions-component></app-actions-component>
+          </li>
+        </ul>
+      </div>
+  </nav>
+  <div>
+    <router-outlet></router-outlet>
+  </div>
+  <div>
+    <app-footer-component></app-footer-component>
+  </div>
+</div>

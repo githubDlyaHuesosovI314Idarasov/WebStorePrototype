@@ -22,6 +22,21 @@ namespace DAL.Migrations.ExternalWebStoreDB
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("DAL.Models.CarouselImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CaroselImages");
+                });
+
             modelBuilder.Entity("DAL.Models.Category", b =>
                 {
                     b.Property<Guid>("Id")
@@ -61,9 +76,21 @@ namespace DAL.Migrations.ExternalWebStoreDB
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<long?>("DiscountedPrice")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsCouponApplicable")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsOnSale")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<long>("Price")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 

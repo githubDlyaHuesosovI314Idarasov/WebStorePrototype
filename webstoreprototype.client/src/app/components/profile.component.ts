@@ -13,41 +13,16 @@ import { AsyncPipe, CommonModule } from '@angular/common';
     
     @if ((auth.isAuthenticated$ | async) && (auth.user$ | async); as user) {
       <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
-        @if (user.picture) {
-          <img 
-            [src]="user.picture" 
-            [alt]="user.name || 'User'"
-            class="profile-picture"
-            style="
-              width: 110px; 
-              height: 110px; 
-              border-radius: 50%; 
-              object-fit: cover;
-              border: 3px solid #63b3ed;
-            "
-          />
-        }
         <div style="text-align: center;">
-          <div 
-            class="profile-name" 
+          <div class="profile-name" 
             style="
               font-size: 2rem; 
               font-weight: 600; 
               color: #f7fafc; 
-              margin-bottom: 0.5rem;
-            "
-          >
+              margin-bottom: 0.5rem;">
             {{ user.name }}
           </div>
-          <div 
-            class="profile-email" 
-            style="
-              font-size: 1.15rem; 
-              color: #a0aec0;
-            "
-          >
-            {{ user.email }}
-          </div>
+          
         </div>
       </div>
     }

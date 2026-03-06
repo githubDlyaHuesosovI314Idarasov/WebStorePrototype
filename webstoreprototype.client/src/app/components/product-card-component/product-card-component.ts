@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input} from '@angular/core';
 import { Product } from '../../interfaces/product';
 import { RouterLink } from "@angular/router";
 import { ProductCarouselComponent } from "../product-carousel-component/product-carousel-component";

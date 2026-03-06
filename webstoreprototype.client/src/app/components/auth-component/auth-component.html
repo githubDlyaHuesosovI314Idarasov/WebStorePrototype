@@ -1,18 +1,18 @@
 <div class="app-container">
   @if (!(auth.isLoading$ | async) && !(auth.error$ | async)) {
     @if (auth.isAuthenticated$ | async) {
-    <div class="logged-in-section">
-      <h2 class="profile-section-title">Your Profile</h2>
-      <div class="profile-card">
-        <app-profile />
+      <div class="logged-in-section">
+        <h2 class="profile-section-title">Your Profile</h2>
+        <div class="profile-card">
+          <app-profile />
+        </div>
+        <app-logout-button />
       </div>
-      <app-logout-button />
-    </div>
     } 
     @else {
-    <div class="action-card">
-      <app-login-button />
-    </div>
+      <div class="">
+        <app-login-button />
+      </div>
     }
 
   }

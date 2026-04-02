@@ -3,11 +3,6 @@
   display: flex;
 }
 
-::placeholder{
-  padding-left: 1rem;
-}
-
-
 .search-form{
     display: flex;
     flex-direction: row;
@@ -20,10 +15,14 @@
   width: 100%;
   height: 100%;
   position: relative;
+  
 }
 
 .wrapper input{
-  width: 100%;
+  width: 100%;  
+  min-height: 2.5rem;
+  padding-left: 1rem;
+  padding-right: 2rem;
 }
 
 .wrapper button{

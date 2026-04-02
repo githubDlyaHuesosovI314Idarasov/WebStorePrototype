@@ -1,0 +1,17 @@
+<div class="row">
+    @if(authenticated){
+        <div class="col">
+            <a class="text-dark" (click)="login()">Login</a>
+        </div>
+        <div class="col">
+            <a class="text-dark" (click)="register()">Register</a>
+        </div>
+    }@else{
+        <div class="col">
+            <a class="text-dark">Your profile</a>
+        </div>
+        <div class="col">
+            <a class="text-dark" (click)="logout()">Logout</a>
+        </div>
+    }
+</div>

@@ -1,6 +1,14 @@
 .navbar > .container,
 .navbar > .container-fluid {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: stretch;
+}
+
+ul{
+  display: flex;
+}
+
+li{
+  list-style: none;
 }

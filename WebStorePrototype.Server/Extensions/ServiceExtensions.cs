@@ -17,18 +17,44 @@ namespace WebStorePrototype.Server.Extensions
             });
         }
 
-        public static void AddWebStoreDBContext(this IServiceCollection services, IConfiguration configuration)
+        public static void AddWebStoreDBLocalContext(this IServiceCollection services, IConfiguration configuration) // for release
         {
             services.AddDbContext<WebStoreDBContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("Default")));
+                options.UseNpgsql(configuration.GetConnectionString("LocalDefault")));
         }
 
-        public static void AddExternalWebStoreDBContext(this IServiceCollection services, IConfiguration configuration)
+        public static void AddExternalWebStoreDBLocalContext(this IServiceCollection services, IConfiguration configuration) // for development
         {
             services.AddDbContext<ExternalWebStoreDBContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("Dev")));
+                options.UseNpgsql(configuration.GetConnectionString("LocalDev")));
         }
 
+        public static void AddWebStoreDbDockerContext(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddDbContext<WebStoreDBContext>(options =>
+                options.UseNpgsql(configuration.GetConnectionString("DockerDev")));
+        }
+
+        public static void AddExternalWebStoreDbDockerContext(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddDbContext<ExternalWebStoreDBContext>(options =>
+                options.UseNpgsql(configuration.GetConnectionString("DockerDefault")));
+        }
+
+        public static void AddWebStoreDBCloudContext(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddDbContext<WebStoreDBContext>(options =>
+                options.UseNpgsql(configuration.GetConnectionString("CloudDev")));
+        }
+
+        public static void AddExternalWebStoreDBCloudContext(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddDbContext<ExternalWebStoreDBContext>(options =>
+                options.UseNpgsql(configuration.GetConnectionString("CloudDefault")));
+        }
+
+        // This method is commented out because the project has been switched to Keycloak for authentication, but it can be used as a reference for adding Auth0 authentication in the future if needed.
+        /*
         public static void Add0Auth(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddAuth0WebAppAuthentication(options =>
@@ -38,5 +64,6 @@ namespace WebStorePrototype.Server.Extensions
                 options.ClientSecret = configuration["Auth0:ClientSecret"];
             });
         }
+        */
     }
 }

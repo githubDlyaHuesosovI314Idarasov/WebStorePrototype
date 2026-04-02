@@ -1,5 +1,8 @@
 <Solution>
   <Project Path="DAL/DAL.csproj" Id="2a3db3c0-542e-434e-b27b-b258ab5d4a6d" />
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
   <Project Path="webstoreprototype.client/webstoreprototype.client.esproj">
     <Build />
     <Deploy />

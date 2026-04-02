@@ -1,0 +1,120 @@
+services:
+  server:
+    container_name: WebStorePrototype.Server
+    build:
+      context: .
+      dockerfile: WebStorePrototype.Server/Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__Postgres=Host=db;Database=${DATABASE_DEV};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      - ConnectionStrings__Redis=redis:6379
+    networks:
+      - app-network
+      - internal-network
+    depends_on:
+        - db
+        - keycloak
+  client:
+    container_name: webstoreprototype.client
+    build:
+      context: ./webstoreprototype.client
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"
+    depends_on:
+      - server
+    networks:
+      - app-network
+      - internal-network
+
+  db:
+    image: postgres:18-alpine
+    container_name: webstoreprototype.db
+    environment:
+        POSTGRES_DB: ${POSTGRES_DB}
+        POSTGRES_USER: ${POSTGRES_USER}
+        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    ports:
+      -  "5430:5432"
+    healthcheck:
+        test: 
+            [
+                "CMD",
+                "pg_isready",
+                "-q",
+                "-d",
+                "${POSTGRES_DB}",
+                "-U",
+                "${POSTGRES_USER}",
+            ]
+        interval: 10s
+        timeout: 5s
+        retries: 3
+        start_period: 60s
+    networks:
+      - internal-network
+      - app-network
+
+
+  keycloak:
+    container_name: webstoreprototype.keycloak
+    image: quay.io/keycloak/keycloak:latest
+    command: start
+    environment:
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: 8080
+      KC_HOSTNAME_STRICT_BACKCHANNEL: false
+      KC_HTTP_ENABLED: true
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HEALTH_ENABLED: true
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://db:5432/keycloakDB
+      KC_DB_USERNAME: ${POSTGRES_USER}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health/ready || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    restart: unless-stopped
+    depends_on: 
+        db:
+          condition: service_healthy
+    networks:
+      - internal-network
+      - app-network
+          
+  redis:
+    image: redis:latest
+    container_name: webstoreprototype.redis
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - internal-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  app-network:
+    driver: bridge
+  internal-network:
+    internal: true

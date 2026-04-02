@@ -4,13 +4,14 @@ import { CommonModule } from '@angular/common';
 import { WeatherForecast } from './weather-forecast';
 import { FooterComponent } from './components/footer-component/footer-component';
 import { RouterOutlet, RouterModule } from '@angular/router';
-import { NavbarComponent } from "./navbar-component/navbar-component";
+import { NavbarComponent } from './components/navbar-component/navbar-component';
+
 
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.html',
-  imports: [CommonModule, RouterModule, FooterComponent, RouterOutlet, NavbarComponent],
+  imports: [CommonModule, RouterModule, FooterComponent, RouterOutlet, NavbarComponent], //FontAwesomeModule],
   standalone: true,
   styleUrl: './app.css',
 })

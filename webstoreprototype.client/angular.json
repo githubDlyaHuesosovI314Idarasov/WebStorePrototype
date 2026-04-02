@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "webstoreapp.client": {
+    "webstoreprototype.client": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -23,6 +23,7 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
+            "outputPath": "dist/webstoreprototype.client",
             "browser": "src/main.ts",
             "polyfills": [
               "zone.js"
@@ -34,7 +35,7 @@
                 "glob": "**/*",
                 "input": "public"
               }
-              
+
             ],
             "styles": [
               "src/styles.css"
@@ -68,16 +69,16 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "webstoreapp.client:build:production"
+              "buildTarget": "webstoreprototype.client:build:production"
             },
             "development": {
-              "buildTarget": "webstoreapp.client:build:development"
+              "buildTarget": "webstoreprototype.client:build:development"
             }
           },
           "defaultConfiguration": "development",
           "options": {
             "proxyConfig": "src/proxy.conf.js",
-            "port": 28344
+            "port": 4200
           }
         },
         "extract-i18n": {

@@ -1,0 +1,40 @@
+<nav class="navbar sticky-top navbar-expand-md bg-primary">
+  <div class="container d-flex align-items-center gap-2">
+
+    <a class="navbar-brand text-white fw-bold d-none d-md-block" routerLink="">WebStorePrototype</a>
+
+    <app-catalogue-button-component class="d-none d-lg-block"></app-catalogue-button-component>
+
+    <button class="navbar-toggler border-3 border-dark d-md-none" type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#offcanvasNav"
+            aria-controls="offcanvasNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <app-search-bar-component class="flex-grow-1 d-flex"></app-search-bar-component>
+    
+    <ul class="navbar-nav align-items-center h-25">
+      <app-shopping-cart-component></app-shopping-cart-component>
+    
+      <div class="d-none d-lg-block align-items-center">
+          <app-actions-component></app-actions-component>
+      </div>
+    </ul>
+
+  </div>
+</nav>
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasNav">
+  <div class="offcanvas-header bg-primary text-white">
+    <a class="navbar-brand text-white" routerLink="" data-bs-dismiss="offcanvas">WebStorePrototype</a>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body">
+    <app-catalogue-button-component class=""></app-catalogue-button-component>
+    <ul class="navbar-nav align-items-start">
+      <li class="nav-item">
+        <app-actions-off-canvas-component></app-actions-off-canvas-component>
+      </li>
+    </ul>
+  </div>

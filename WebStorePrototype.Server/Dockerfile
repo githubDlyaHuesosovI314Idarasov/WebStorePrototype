@@ -9,17 +9,11 @@ EXPOSE 8081
 
 
 # Этот этап используется для сборки проекта службы
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS with-node
-RUN apt-get update
-RUN apt-get install curl
-RUN curl -sL https://deb.nodesource.com/setup_20.x | bash
-RUN apt-get -y install nodejs
-RUN npm install -g @angular/cli
-
-FROM with-node AS build
-ARG BUILD_CONFIGURATION=Release
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+ARG BUILD_CONFIGURATION=Debug
 WORKDIR /src
 COPY ["WebStorePrototype.Server/WebStorePrototype.Server.csproj", "WebStorePrototype.Server/"]
+COPY ["DAL/DAL.csproj", "DAL/"]
 RUN dotnet restore "./WebStorePrototype.Server/WebStorePrototype.Server.csproj"
 COPY . .
 WORKDIR "/src/WebStorePrototype.Server"
@@ -27,7 +21,7 @@ RUN dotnet build "./WebStorePrototype.Server.csproj" -c $BUILD_CONFIGURATION -o 
 
 # Этот этап используется для публикации проекта службы, который будет скопирован на последний этап
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
+ARG BUILD_CONFIGURATION=Debug
 RUN dotnet publish "./WebStorePrototype.Server.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # Этот этап используется в рабочей среде или при запуске из VS в обычном режиме (по умолчанию, когда конфигурация отладки не используется)

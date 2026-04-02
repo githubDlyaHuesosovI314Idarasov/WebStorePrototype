@@ -10,6 +10,7 @@ namespace WebStorePrototype.Server.Controllers
     [Route("[controller]")]
     public class AccountController : Controller
     {
+        [HttpPost]
         public async Task Login(string returnUrl = "/")
         {
             var authenticationProperties = new LoginAuthenticationPropertiesBuilder()
@@ -19,7 +20,14 @@ namespace WebStorePrototype.Server.Controllers
             await HttpContext.ChallengeAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
         }
 
+        public async Task Login()
+        {
+
+        }
+
+
         [Authorize]
+        [HttpPost]
         public async Task Logout()
         {
             var authenticationProperties = new LogoutAuthenticationPropertiesBuilder()
@@ -31,6 +39,7 @@ namespace WebStorePrototype.Server.Controllers
         }
 
         [Authorize]
+        [HttpGet]
         public IActionResult Profile()
         {
             return View();

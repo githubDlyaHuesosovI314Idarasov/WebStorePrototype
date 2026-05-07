@@ -19,6 +19,7 @@ namespace DAL.Models
         public Category Category { get; set; } = null!;
         public IEnumerable<Stock> Stocks { get; set; } = new List<Stock>();
         public IEnumerable<ProductImage> Images { get; set; } = new List<ProductImage>();
+        public IEnumerable<Review> Reviews { get; set; } = new List<Review>();
 
     }
 }

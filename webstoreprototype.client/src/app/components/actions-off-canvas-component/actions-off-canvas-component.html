@@ -1,10 +1,25 @@
 <ul class="navbar-nav">
+    <li class="nav-item">
+        <a class="nav-link" routerLink="order">
+            <fa-icon [icon]="faShoppingCart"></fa-icon> Shopping Cart
+        </a>
+    </li>
     @if(!authenticated){
         <li class="nav-item">
             <app-login-link-component (click)="login()"></app-login-link-component>
         </li>
         <li class="nav-item">
             <app-register-link-component (click)="register()"></app-register-link-component>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" routerLink="compare">
+                <fa-icon [icon]="faBalanceScale"></fa-icon> Compare
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" routerLink="favorite">
+                <fa-icon [icon]="faHeart"></fa-icon> Favorites
+            </a>
         </li>
     }
     @if(authenticated){
@@ -14,20 +29,32 @@
         <li class="nav-item">
             <app-logout-link-component (click)="logout()"></app-logout-link-component>
         </li>
-        }
-    <li class="nav-item">
-        <a class="nav-link" routerLink="order">
-            <fa-icon [icon]="faShoppingCart"></fa-icon> Shopping Cart
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" routerLink="compare">
-            <fa-icon [icon]="faBalanceScale"></fa-icon> Compare
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" routerLink="favorite">
-            <fa-icon [icon]="faHeart"></fa-icon> Favorites
-        </a>
-    </li>
+        <li class="nav-item">
+            <a class="nav-link" routerLink="profile/compare">
+                <fa-icon [icon]="faBalanceScale"></fa-icon> Compare
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" routerLink="profile/favorites">
+                <fa-icon [icon]="faHeart"></fa-icon> Favorites
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" routerLink="profile/orders">
+                <fa-icon [icon]="faList"></fa-icon> Orders
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" routerLink="profile/edit">
+                <fa-icon [icon]="faPenToSquare"></fa-icon> Edit Profile
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" routerLink="profile/reviews">
+                <fa-icon [icon]="faStar"></fa-icon> Reviews
+            </a>
+        </li>
+    }
+
+    
 </ul>

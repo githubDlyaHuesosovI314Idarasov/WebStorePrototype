@@ -1,0 +1,26 @@
+<div class="accordion-item">
+<h2 class="accordion-header" [id]="'collapse-' + review.product">
+    <button class="accordion-button" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#collapse-' + review.product" aria-expanded="true" [attr.aria-controls]="'#collapse-' + review.product">
+        <div class="container-fluid">
+            
+            <tr> 
+                <th>
+                    <img class="rounded" [src]="review.product.images.at(0)"/>
+                </th>
+                <th>
+                    {{review.createdAt}}            
+                </th>
+                <th>
+                    {{review.rating}}
+                </th>
+            </tr>
+    
+        </div>
+    </button>
+</h2>
+<div [id]="'collapse-' + review.product" class="accordion-collapse collapse show" [aria-labelledby]="'#collapse-' + review.product" data-bs-parent="#accordionReview">
+    <div class="accordion-body">
+        {{review.comment}}
+    </div>
+</div>
+</div>

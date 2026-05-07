@@ -15,6 +15,7 @@ namespace DAL.Models
         public Boolean IsEmailVerified { get; set; } = false;
         public ComparedProducts ComparedProducts { get; set; } = null!;
         public FavoriteProducts FavoriteProducts { get; set; } = null!;
+        public IEnumerable<Review> Reviews { get; set; } = new List<Review>();
         public IEnumerable<Order> Orders { get; set; } = new List<Order>();
 
     }

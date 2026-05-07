@@ -1,0 +1,12 @@
+<div class="container">
+    <ul class="nav nav-pills flex-column mb-auto">
+        @for(category of sidebarCategoryList; track $index){
+            <li class="nav-item">    
+                <a class="nav-link">
+                    <fa-icon [icon]="category.icon"/>
+                    {{category.name}}
+                </a>
+            </li>
+        }
+    </ul>
+</div>

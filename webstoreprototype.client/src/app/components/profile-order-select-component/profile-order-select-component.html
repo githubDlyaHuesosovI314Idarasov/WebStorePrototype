@@ -1,0 +1,10 @@
+<div class="container-fluid">
+    <select class="form-select">
+        <option selected>-- Click here to sort by... --</option>
+        @for(selectOption of selectOptionsList; track $index)
+        {
+            <option>{{selectOption.content}}</option>
+        }
+    
+    </select>
+</div>

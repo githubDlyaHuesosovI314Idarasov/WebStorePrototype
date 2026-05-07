@@ -1,0 +1,28 @@
+<div class="container-fluid">
+    <div class="d-flex flex-row m-4">
+        <h2 class="h2">Your reviewed products</h2>
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>
+                    Product
+                </th>
+                <th>
+                    When created
+                </th>
+                <th>
+                    Rating
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <div class="accordion" id="accordionReview">
+                @for(review of reviewList; track $index){
+                    <app-profile-review-accordion-item-template-component [review]="review"></app-profile-review-accordion-item-template-component>
+                }
+            </div>
+        </tbody>
+    </table>
+</div>

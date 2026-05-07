@@ -1,56 +1,13 @@
-<div class="row d-flex">
-    <div class="col-5">
-        <div class="row justify-content-start flex ms-4 d-none d-lg-block">
-            <div class="col-lg-2 mt-5">
-                <div class="card">
-                    <div class="card-header text-center">
-                        <label>Your profile</label>
-                    </div>
-                    <ul class="list-group">
-                        <li class="list-group-item d-flex">
-                            <input class="btn-check" type="radio" name="vbtn-radio" id="vbtn-radio1" autocomplete="off" checked/>
-                            <label class="btn btn-outline-primary flex-grow-1" for="vbtn-radio1"><fa-icon [icon]="faPenToSquare"/> Edit Profile</label> 
-                        </li>
-                        <li class="list-group-item d-flex">
-                            <input class="btn-check" type="radio" name="vbtn-radio" id="vbtn-radio2" autocomplete="off" />
-                            <label class="btn btn-outline-primary flex-grow-1" for="vbtn-radio2"><fa-icon [icon]="faList"/> My Orders</label> 
-                        </li>
-                        <li class="list-group-item d-flex">                    
-                            <input class="btn-check" type="radio" name="vbtn-radio" id="vbtn-radio3" autocomplete="off"/>
-                            <label class="btn btn-outline-primary flex-grow-1" for="vbtn-radio3"><fa-icon [icon]="faHeart"/> My Favorites</label> 
-                        </li>
-                        <li class="list-group-item d-flex">
-                            <input class="btn-check" type="radio" name="vbtn-radio" id="vbtn-radio4" autocomplete="off"/>
-                            <label class="btn btn-outline-primary flex-grow-1" for="vbtn-radio4"><fa-icon [icon]="faStar"/> Reviews</label> 
-                        </li>
-                        <li class="list-group-item d-flex">
-                            <button class="btn btn-outline-danger flex-grow-1"><fa-icon [icon]="faRightFromBracket"></fa-icon> Logout</button>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+<div class="container-fluid gap-3">
+    <div class="d-flex flex-row">
+        <div class="flex-col-3 mt-5 mx-4 d-none d-lg-block flex-g">
+            <app-profile-management-component></app-profile-management-component>
         </div>
-    </div>
-
-    <div class="col flex-grow-1">
-        <div class="row justify-content-center flex">
-            <div class="col-lg-6 mt-5">
-                <div class="card border-3 border-primary mx-auto">
-                    <div class="card-body p-0">
-                        <div class="row"> 
-                            <div class="col">
-                                
-                            </div>
-                            <div class="col flex-grow-1">
-                                <div class="card-body"> 
-                                    Content here 
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
+        <div class="flex-col-12-lg flex-col-8  mt-5 mx-4 flex-grow-1">
+            <app-profile-content-component></app-profile-content-component>
         </div>
     </div>
 </div>
+    
+
+    

@@ -1,0 +1,46 @@
+<div class="accordion-item">
+    <h2 class="accordion-header" [id]="'collapse-' + order.orderNumber">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#collapse-' + order.orderNumber" aria-expanded="true" [aria-controls]="'collapse-' + order.orderNumber">
+            <tr>
+                <th>
+                    {{order.orderNumber}}
+                </th>
+                <th>
+                    {{order.productsCount}}
+                </th>
+                <th>
+                    {{order.orderDate}}
+                </th>
+                <th>
+                    {{order.totalAmount}}
+                </th>
+                <th>
+                    <span class="badge bg-primary rounded-pill">
+                        {{order.status.toString()}}
+                    </span>
+                </th>
+            </tr>
+        </button>
+    </h2>
+    <div [id]="'collapse-' + order.orderNumber" class="accordion-collapse collapse show" data-bs-parent="#accordion">
+      <div class="accordion-body">
+        @for(entry of getGroupedProducts(); track entry.product.id)
+        {
+            <tr>
+                <th>
+                    <img [src]="entry.product.images.at(0)?.url"/>
+                </th>
+                <th>
+                    {{entry.product.name}}
+                </th>
+                <th>
+                    {{entry.product.price}}
+                </th>
+                <th>
+                    {{entry.count}}
+                </th>
+            </tr>
+        }
+      </div>
+    </div>
+</div>

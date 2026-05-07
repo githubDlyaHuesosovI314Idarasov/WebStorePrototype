@@ -12,7 +12,7 @@ namespace WebStorePrototype.Server.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private readonly RedisKey _redisKey = "categories";
+        private readonly RedisKey _redisKey = "categories:all";
         private readonly BaseRepo<DbContext, Category> _categoryRepo;
         private readonly RedisService<Category> _redisService;
 

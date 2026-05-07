@@ -1,14 +1,13 @@
 import { Component, effect ,inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { faPenToSquare, faStar, faHeart, faList, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType, ReadyArgs, typeEventArgs } from 'keycloak-angular';
+import { ProfileContentComponent } from '../profile-content-component/profile-content-component';
 import Keycloak from 'keycloak-js';
-import { FaIconComponent } from "@fortawesome/angular-fontawesome";
-
+import { ProfileManagementComponent } from '../profile-management-component/profile-management-component';
 
 @Component({
   selector: 'app-profile-component',
-  imports: [FaIconComponent],
+  imports: [ProfileManagementComponent, ProfileContentComponent],
   templateUrl: './profile-component.html',
   styleUrl: './profile-component.css',
 })
@@ -18,11 +17,7 @@ export class ProfileComponent {
   private readonly keycloakSignal = inject(KEYCLOAK_EVENT_SIGNAL);
   authenticated = false;
   keycloakStatus: string | undefined;
-  faPenToSquare = faPenToSquare;
-  faStar = faStar;
-  faHeart = faHeart;
-  faList = faList;
-  faRightFromBracket = faRightFromBracket;
+
 
   constructor(private router: Router) {
     effect(() => {
@@ -43,5 +38,5 @@ export class ProfileComponent {
     return await this.keycloak.loadUserProfile();
   }
 
-
+  
 }

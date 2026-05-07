@@ -1,0 +1,12 @@
+<div class="container-fluid p-4">
+    @if(favoriteProductList.at(0) != null){
+        @for(product of favoriteProductList; track $index){
+            <app-product-template-component [product]="product"></app-product-template-component>
+        }
+    }
+    @else{
+    <div class="d-flex flex-row justify-content-center align-items-center">
+        <h1 class="h1">You don't have any products in favorite list</h1>
+    </div>
+    }
+</div>

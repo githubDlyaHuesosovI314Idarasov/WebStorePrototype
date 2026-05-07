@@ -8,6 +8,10 @@ import { ProductInfoPageComponent } from './components/product-info-page-compone
 import { ProfileComponent } from './components/profile-component/profile-component';
 import { canActivateAuthRole } from './auth-role-guard';
 import { FavoritePageComponent } from './components/favorite-page-component/favorite-page-component';
+import { EditProfilePageComponent } from './components/edit-profile-page-component/edit-profile-page-component';
+import { ProfileFavoritesPageComponent } from './components/profile-favorites-page-component/profile-favorites-page-component';
+import { ProfileReviewsPageComponent } from './components/profile-reviews-page-component/profile-reviews-page-component';
+import { ProfileOrdersPageLayoutComponent } from './components/profile-orders-page-layout-component/profile-orders-page-layout-component';
 
 const routes: Routes = [
   {
@@ -25,7 +29,34 @@ const routes: Routes = [
     path: 'profile',
     component: ProfileComponent,
     // canActivate: [canActivateAuthRole],
-    title: 'Your profile'
+    title: 'Your profile',
+    children: [
+      {
+        path: '',
+        redirectTo: 'edit',
+        pathMatch: 'full'
+      },
+      {
+        path: 'edit',
+        component: EditProfilePageComponent,
+        title: 'Edit Profile',
+      },
+      {
+        path: 'orders',
+        component: ProfileOrdersPageLayoutComponent,
+        title: 'My Orders',
+      },
+      {
+        path: 'favorites',
+        component: ProfileFavoritesPageComponent,
+        title: 'My favorites',
+      },
+      {
+        path: 'reviews',
+        component: ProfileReviewsPageComponent,
+        title: 'Reviews',
+      }
+    ]
   },
   {
     path: 'search/:text',
@@ -51,8 +82,7 @@ const routes: Routes = [
     path: 'product/:id',
     component: ProductInfoPageComponent,
     title: 'Product'
-  }
-
+  },
 ];
 
 export default routes;

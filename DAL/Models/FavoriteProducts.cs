@@ -6,8 +6,8 @@ namespace DAL.Models
 {
     public class FavoriteProducts : Entity
     {
-        public Guid UserId { get; set; }
-        public User User { get; set; }
-        public IEnumerable<Product> Products { get; set; }  
+        public String? UserId { get; set; }
+        public User? User { get; set; }
+        public IEnumerable<Product>? Products { get; set; }  
     }
 }

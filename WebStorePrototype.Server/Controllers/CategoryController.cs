@@ -12,42 +12,47 @@ namespace WebStorePrototype.Server.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private readonly RedisKey _redisKey = "categories:all";
         private readonly BaseRepo<DbContext, Category> _categoryRepo;
         private readonly RedisService<Category> _redisService;
 
-        public CategoryController(DbContext dbContext)
+        public CategoryController(DbContext dbContext, RedisService<Category> redisService)
         {
             _categoryRepo = new BaseRepo<DbContext, Category>(dbContext);
-            _redisService = new RedisService<Category>(_categoryRepo, _redisKey);
+            _redisService = redisService;
         }
 
-        [HttpGet("{id}")]
-        public async Task<Category?> Get(Guid id)
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<Category?>> Get(Guid id)
         {
+            RedisKey redisKey = new RedisKey($"category:{id}");
+            
+            Category? category = await _redisService.GetAsync(redisKey);
+            if (category != null) { return Ok(category); }
 
-            if (_redisService.IsRedisAvailable())
-            {
-                return await _redisService.GetFromRedis(id);
-            }
-
-            var category = await _categoryRepo.GetAsync(id);
-            await _redisService.SetOneEntityToRedis(category);
-            return category;
+            category = await _categoryRepo.GetAsync(id);
+            if(category == null) { return NotFound(); }
+    
+            await _redisService.SetAsync(redisKey, category);
+            return Ok(category);
 
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Category>> GetAll()
+        public async Task<ActionResult<IEnumerable<Category>>> GetAll()
         {
-            if (_redisService.IsRedisAvailable())
+            RedisKey redisKey = new RedisKey("categories:all");
+            if (await _redisService.IsRedisAvailable(redisKey))
             {
-                return (await _redisService.GetAllFromRedis()).ToList();
+                IEnumerable<Category> cached = await _redisService.GetListAsync(redisKey);
+                if (cached.Count() > 0)
+                {
+                    return Ok(cached);
+                }
             }
 
             var categories = await _categoryRepo.GetAllAsync();
-            await _redisService.SetAllEntitiesToRedis();
-            return categories;
+            await _redisService.SetListAsync(redisKey, categories);
+            return Ok(categories);
 
         }
 
@@ -56,6 +61,9 @@ namespace WebStorePrototype.Server.Controllers
         {
             await _categoryRepo.AddAsync(category);
             await _categoryRepo.SaveAsync();
+
+            await _redisService.SetAsync($"category:{category.Id}", category);
+            await _redisService.DeleteAsync("categories:all");
             return Ok(category);
         }
 
@@ -64,10 +72,13 @@ namespace WebStorePrototype.Server.Controllers
         {
             _categoryRepo.Update(category);
             await _categoryRepo.SaveAsync();
+
+            await _redisService.SetAsync($"category:{category.Id}", category);
+            await _redisService.DeleteAsync("categories:all");
             return Ok(category);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var category = await _categoryRepo.GetAsync(id);
@@ -77,6 +88,9 @@ namespace WebStorePrototype.Server.Controllers
             }
             _categoryRepo.Delete(category);
             await _categoryRepo.SaveAsync();
+
+            await _redisService.DeleteAsync($"category:{id}");
+            await _redisService.DeleteAsync("categories:all");
             return Ok();
 
         }

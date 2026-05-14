@@ -8,6 +8,9 @@ using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Keycloak.AuthServices.Authorization;
+using WebStorePrototype.Server.Models;
+using Microsoft.Extensions.Caching.Memory;
+using WebStorePrototype.Server.Services;
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Verbose()
     .WriteTo.Console()
@@ -23,6 +26,17 @@ try
     builder.Logging.AddSerilog();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
+    builder.Services.AddSingleton<IConnectionMultiplexer>(
+        ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")!));
+    builder.Services.AddSingleton(typeof(RedisService<>));
+    builder.Services.Configure<KeycloakConfiguration>(builder.Configuration.GetSection("Keycloak"));
+    builder.Services.Configure<CookieOptions>(options =>
+    {
+        options.Expires = DateTimeOffset.UtcNow.AddDays(30);
+        options.SameSite = SameSiteMode.Lax;
+        options.HttpOnly = false;
+        options.Secure = true;
+    });
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
         {
@@ -44,6 +58,7 @@ try
         options.AddPolicy("AdminOnly", policy => policy.RequireRealmRoles("admin"));
     });
     builder.Services.AddControllers();
+
 
     builder.Services.AddExternalWebStoreDBLocalContext(builder.Configuration); // for local development db
     builder.Services.AddWebStoreDBLocalContext(builder.Configuration); // for production local db

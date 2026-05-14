@@ -9,7 +9,7 @@ namespace DAL.Models
     {
         public Double Rating { get; set; }
         public String Comment { get; set; } = null!;
-        public Guid UserId { get; set; }
+        public String UserId { get; set; } = null!;
         public Guid ProductId { get; set; }
         public DateTime CreatedAt { get; set; }
         public User User { get; set; } = null!;

@@ -12,61 +12,74 @@ namespace WebStorePrototype.Server.Controllers
     [ApiController]
     public class ProductImageController : ControllerBase
     {
-        private readonly RedisKey _redisKey = "productImages";
         private readonly BaseRepo<DbContext, ProductImage> _productImageRepo;
         private readonly RedisService<ProductImage> _redisService;
 
-        public ProductImageController(DbContext dbContext)
+        public ProductImageController(DbContext dbContext, RedisService<ProductImage> redisService)
         {
             _productImageRepo = new BaseRepo<DbContext, ProductImage>(dbContext);
-            _redisService = new RedisService<ProductImage>(_productImageRepo, _redisKey);
+            _redisService = redisService;
         }
 
-        [HttpGet("{id}")]
-        public async Task<ProductImage?> Get(Guid id)
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<ProductImage?>> Get(Guid id)
         {
-            if (_redisService.IsRedisAvailable())
-            {
-                return await _redisService.GetFromRedis(id);
-            }
+            RedisKey redisKey = $"productImages:{id}";
 
-            var productImage = await _productImageRepo.GetAsync(id);
-            await _redisService.SetOneEntityToRedis(productImage);
+            ProductImage? productImage = await _productImageRepo.GetAsync(id);
+            if(productImage != null) { return Ok(productImage); }
+
+            productImage = await _productImageRepo.GetAsync(id);
+            if(productImage == null) { return NotFound(); }
+
+            await _redisService.SetAsync(redisKey, productImage);
             return productImage;
 
         }
 
         [HttpGet]
-        public async Task<IEnumerable<ProductImage>> GetAll()
+        public async Task<ActionResult<IEnumerable<ProductImage>>> GetAll()
         {
-            if (_redisService.IsRedisAvailable())
+            RedisKey redisKey = "productImages:all";
+
+            if (await _redisService.IsRedisAvailable(redisKey))
             {
-                return (await _redisService.GetAllFromRedis()).ToList();
+                IEnumerable<ProductImage> cached = await _redisService.GetListAsync(redisKey);
+                if (cached.Count() > 0)
+                {
+                    return Ok(cached);
+                }
             }
 
-            var productImages = await _productImageRepo.GetAllAsync();
-            await _redisService.SetAllEntitiesToRedis();
-            return productImages;
-
+            IEnumerable<ProductImage> productImages = await _productImageRepo.GetAllAsync();
+            await _redisService.SetListAsync(redisKey, productImages);
+            return Ok(productImages);
+            
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(ProductImage productImage)
+        public async Task<ActionResult<ProductImage>> Create(ProductImage productImage)
         {
             await _productImageRepo.AddAsync(productImage);
             await _productImageRepo.SaveAsync();
+
+            await _redisService.SetAsync($"productImages:{productImage.Id}", productImage);
+            await _redisService.DeleteAsync("productImages:all");
             return Ok(productImage);
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(ProductImage productImage)
+        public async Task<ActionResult<ProductImage>> Update(ProductImage productImage)
         {
             _productImageRepo.Update(productImage);
             await _productImageRepo.SaveAsync();
+
+            await _redisService.SetAsync($"productImages:{productImage.Id}", productImage);
+            await _redisService.DeleteAsync("productImages:all");
             return Ok(productImage);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var productImage = await _productImageRepo.GetAsync(id);
@@ -76,7 +89,10 @@ namespace WebStorePrototype.Server.Controllers
             }
             _productImageRepo.Delete(productImage);
             await _productImageRepo.SaveAsync();
-            return Ok();
+
+            await _redisService.DeleteAsync($"productImages:{id}");
+            await _redisService.DeleteAsync("productImages:all");
+            return NoContent();
 
         }
 

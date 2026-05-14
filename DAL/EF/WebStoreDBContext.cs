@@ -21,6 +21,7 @@ namespace DAL.EF
         public DbSet<Stock> Stocks { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Location> Locations { get; set; }
+        public DbSet<Subcategory> Subcategories { get; set; }
         public DbSet<CarouselImage> CaroselImages { get; set; }
 
 

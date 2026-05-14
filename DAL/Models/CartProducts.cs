@@ -4,11 +4,10 @@ using System.Text;
 
 namespace DAL.Models
 {
-    public class ComparedProducts : Entity
+    public class CartProducts : Entity
     {
         public String? UserId { get; set; }
         public User? User { get; set; }
-        public IEnumerable<Category> Categories { get; set; } = null!;
-        public IEnumerable<Product> Products { get; set; } = null!;       
+        public IEnumerable<Product> Products { get; set; } = null!;
     }
 }

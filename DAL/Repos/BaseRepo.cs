@@ -14,9 +14,9 @@ namespace DAL.Repos
         public BaseRepo(Context context) {
             _dbSet = context.Set<T>();
         }
-        public async Task<T> GetAsync(Guid id)
+        public async Task<T?> GetAsync(Guid id)
         {
-            return (await _dbSet.FindAsync(id))!;
+            return (await _dbSet.FindAsync(id));
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()

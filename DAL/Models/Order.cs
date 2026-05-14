@@ -6,7 +6,7 @@ namespace DAL.Models
 {
     public class Order : Entity
     {
-        public Guid UserId { get; set; }
+        public String UserId { get; set; } = null!;
         public Int64 OrderNumber { get; set; }
         public Int64 TotalAmount { get; set; }
         public DateTime OrderDate { get; set; }

@@ -7,11 +7,12 @@ using System.Text;
 
 namespace DAL.EF.Configurations
 {
-    internal class CategoryConfiguration : IEntityTypeConfiguration<Category>
+    public class CategoryConfiguration : IEntityTypeConfiguration<Category>
     {
         public void Configure(EntityTypeBuilder<Category> builder)
         {
             builder.HasMany(x => x.Products).WithOne(x => x.Category).HasForeignKey(x => x.CategoryId);
+            builder.HasMany(x => x.Subcategories).WithOne(x => x.Category).HasForeignKey(x => x.CategoryId);
         }
     }
 }

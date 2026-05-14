@@ -9,6 +9,8 @@ namespace DAL.Models
     {
         public String Name { get; set; } = null!;
         public String Description { get; set; } = null!;
+        public String Brand { get; set; } = null!;
+        public String SKU { get; set; } = null!;
         public Int64 Price { get; set; }
         public Int64? DiscountedPrice { get; set; }
         public Boolean IsOnSale { get; set; }

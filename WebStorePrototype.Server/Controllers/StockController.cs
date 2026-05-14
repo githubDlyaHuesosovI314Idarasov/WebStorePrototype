@@ -3,6 +3,7 @@ using DAL.Repos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 using WebStorePrototype.Server.Services;
 
@@ -12,61 +13,73 @@ namespace WebStorePrototype.Server.Controllers
     [ApiController]
     public class StockController : ControllerBase
     {
-        private readonly RedisKey _redisKey = "stocks";
         private readonly BaseRepo<DbContext, Stock> _stockRepo;
         private readonly RedisService<Stock> _redisService;
 
-        public StockController(DbContext dbContext)
+        public StockController(DbContext dbContext, RedisService<Stock> redisService)
         {
             _stockRepo = new BaseRepo<DbContext, Stock>(dbContext);
-            _redisService = new RedisService<Stock>(_stockRepo, _redisKey);
+            _redisService = redisService;
         }
 
-        [HttpGet("{id}")]
-        public async Task<Stock?> Get(Guid id)
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<Stock?>> Get(Guid id)
         {
-            if (_redisService.IsRedisAvailable())
-            {
-                return await _redisService.GetFromRedis(id);
-            }
+            RedisKey redisKey = $"stocks:{id}";
 
-            var stock = await _stockRepo.GetAsync(id);
-            await _redisService.SetOneEntityToRedis(stock);
-            return stock;
+            Stock? stock = await _redisService.GetAsync(redisKey);
+            if (stock != null) { return stock; }
+
+            stock = await _stockRepo.GetAsync(id);
+            if(stock == null) { return NoContent(); }
+            
+            await _redisService.SetAsync(redisKey, stock);
+            return Ok(stock);
 
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Stock>> GetAll()
+        public async Task<ActionResult<IEnumerable<Stock>>> GetAll()
         {
-            if (_redisService.IsRedisAvailable())
+            RedisKey redisKey = new RedisKey("stocks:all");
+            
+            if(await _redisService.IsRedisAvailable(redisKey))
             {
-                return (await _redisService.GetAllFromRedis()).ToList();
+                IEnumerable<Stock> cached = await _redisService.GetListAsync(redisKey);
+                if (cached.Count() > 0) {
+                    return Ok(cached);
+                }
             }
 
-            var stocks = await _stockRepo.GetAllAsync();
-            await _redisService.SetAllEntitiesToRedis();
-            return stocks;
+            IEnumerable<Stock> stocks = await _stockRepo.GetAllAsync();
+            await _redisService.SetListAsync(redisKey, stocks);
+            return Ok(stocks);
 
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Stock stock)
+        public async Task<ActionResult<Stock>> Create(Stock stock)
         {
             await _stockRepo.AddAsync(stock);
             await _stockRepo.SaveAsync();
+
+            await _redisService.SetAsync($"stocks:{stock.Id}", stock);
+            await _redisService.DeleteAsync("stocks:all");
             return Ok(stock);
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(Stock stock)
+        public async Task<ActionResult<Stock>> Update(Stock stock)
         {
             _stockRepo.Update(stock);
             await _stockRepo.SaveAsync();
+
+            await _redisService.SetAsync($"stocks:{stock.Id}", stock);
+            await _redisService.DeleteAsync("stocks:all");
             return Ok(stock);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var stock = await _stockRepo.GetAsync(id);
@@ -76,6 +89,9 @@ namespace WebStorePrototype.Server.Controllers
             }
             _stockRepo.Delete(stock);
             await _stockRepo.SaveAsync();
+
+            await _redisService.DeleteAsync($"stocks:{id}");
+            await _redisService.DeleteAsync("stocks:all");
             return Ok();
 
         }

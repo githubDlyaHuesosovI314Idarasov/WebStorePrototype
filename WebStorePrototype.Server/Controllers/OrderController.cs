@@ -11,38 +11,46 @@ namespace WebStorePrototype.Server.Controllers
     [Route("api/[controller]")]
     public class OrderController : Controller
     {
-        private readonly RedisKey _redisKey = "orders";
+
         private readonly BaseRepo<DbContext, Order> _orderRepo;
         private readonly RedisService<Order> _redisService;
 
-        public OrderController(DbContext dbContext)
+        public OrderController(DbContext dbContext, RedisService<Order> redisService)
         {
             _orderRepo = new BaseRepo<DbContext, Order>(dbContext);
-            _redisService = new RedisService<Order>(_orderRepo, _redisKey);
+            _redisService = redisService;
         }
 
-        [HttpGet("{id}")]
-        public async Task<Order?> Get(Guid id)
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<Order?>> Get(Guid id)
         {
-            if (_redisService.IsRedisAvailable())
-            {
-                return await _redisService.GetFromRedis(id);
-            }
-            var order = await _orderRepo.GetAsync(id);
-            await _redisService.SetOneEntityToRedis(order);
-            return order;
+            RedisKey redisKey = new RedisKey($"order:{id}");
+
+            Order? order = await _redisService.GetAsync(redisKey);
+            if (order != null) return Ok(order);
+
+            order = await _orderRepo.GetAsync(id);
+            if (order == null) return NotFound();
+
+            await _redisService.SetAsync(redisKey, order);
+            return Ok(order);
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Order>> GetAll()
+        public async Task<ActionResult<IEnumerable<Order>>> GetAll()
         {
-            if (_redisService.IsRedisAvailable())
+            RedisKey redisKey = new RedisKey($"orders:all");
+            
+            if (await _redisService.IsRedisAvailable(redisKey))
             {
-                return (await _redisService.GetAllFromRedis()).ToList();
+                IEnumerable<Order> cached = await _redisService.GetListAsync(redisKey);
+                return Ok(cached);
             }
-            var orders = await _orderRepo.GetAllAsync();
-            await _redisService.SetAllEntitiesToRedis();
-            return orders;
+
+            IEnumerable<Order> orders = await _redisService.GetListAsync(redisKey);
+            await _redisService.SetListAsync(redisKey, orders);
+            return Ok(orders);
+
         }
 
         [HttpPost]
@@ -50,6 +58,9 @@ namespace WebStorePrototype.Server.Controllers
         {
             await _orderRepo.AddAsync(order);
             await _orderRepo.SaveAsync();
+
+            await _redisService.SetAsync($"order:{order.Id}", order);
+            await _redisService.DeleteAsync("orders:all");
             return Ok(order);
 
         }
@@ -59,20 +70,26 @@ namespace WebStorePrototype.Server.Controllers
         {
             _orderRepo.Update(order);
             await _orderRepo.SaveAsync();
-            await _redisService.SetOneEntityToRedis(order);
+            
+            await _redisService.SetAsync($"order:{order.Id}", order);
+            await _redisService.DeleteAsync("orders:all");
             return Ok(order);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var category = await _orderRepo.GetAsync(id);
-            if (category == null)
+            var order = await _orderRepo.GetAsync(id);
+            if (order == null)
             {
                 return NotFound();
             }
-            _orderRepo.Delete(category);
+            _orderRepo.Delete(order);
             await _orderRepo.SaveAsync();
+
+            await _redisService.DeleteAsync($"order:{id}");
+            await _redisService.DeleteAsync("orders:all");
+
             return Ok();
 
         }

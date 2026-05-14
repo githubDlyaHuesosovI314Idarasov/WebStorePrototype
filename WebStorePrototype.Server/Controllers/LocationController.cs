@@ -12,61 +12,73 @@ namespace WebStorePrototype.Server.Controllers
     [ApiController]
     public class LocationController : ControllerBase
     {
-        private readonly RedisKey _redisKey = "categories";
         private readonly BaseRepo<DbContext, Location> _locationRepo;
         private readonly RedisService<Location> _redisService;
 
-        public LocationController(DbContext dbContext)
+        public LocationController(DbContext dbContext, RedisService<Location> redisService)
         {
             _locationRepo = new BaseRepo<DbContext, Location>(dbContext);
-            _redisService = new RedisService<Location>(_locationRepo, _redisKey);
+            _redisService = redisService;
         }
 
-        [HttpGet("{id}")]
-        public async Task<Location?> Get(Guid id)
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<Location?>> Get(Guid id)
         {
-            if (_redisService.IsRedisAvailable())
-            {
-                return await _redisService.GetFromRedis(id);
-            }
+            RedisKey redisKey = new RedisKey($"locations:{id}");
 
-            var location = await _locationRepo.GetAsync(id);
-            await _redisService.SetOneEntityToRedis(location);
-            return location;
+            Location? location = await _redisService.GetAsync(redisKey);
+            if (location != null) { return Ok(location); }
+
+            location = await _locationRepo.GetAsync(id);
+            if (location == null) { return NotFound(); }
+
+            await _redisService.SetAsync(redisKey, location);
+            return Ok(location);
 
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Location>> GetAll()
+        public async Task<ActionResult<IEnumerable<Location>>> GetAll()
         {
-            if (_redisService.IsRedisAvailable())
-            {
-                return (await _redisService.GetAllFromRedis()).ToList();
+            RedisKey redisKey = new RedisKey("locations:all");
+            
+            if(await _redisService.IsRedisAvailable(redisKey)) {
+                IEnumerable<Location> cached = await _redisService.GetListAsync(redisKey);
+                if (cached.Count() > 0)
+                {
+                    return Ok(cached);
+                }
             }
 
-            var locations = await _locationRepo.GetAllAsync();
-            await _redisService.SetAllEntitiesToRedis();
-            return locations;
+            IEnumerable<Location> locations = await _locationRepo.GetAllAsync();
+            await _redisService.SetListAsync(redisKey, locations);
+            return Ok(locations);
 
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Location location)
+        public async Task<ActionResult<Location>> Create(Location location)
         {
             await _locationRepo.AddAsync(location);
             await _locationRepo.SaveAsync();
+            
+            await _redisService.SetAsync($"location:{location.Id}", location);
+            await _redisService.DeleteAsync("locations:all");
             return Ok(location);
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(Location location)
+        public async Task<ActionResult<Location>> Update(Location location)
         {
             _locationRepo.Update(location);
             await _locationRepo.SaveAsync();
+
+            await _redisService.SetAsync($"location:{location.Id}", location);
+            await _redisService.DeleteAsync("locations:all");
             return Ok(location);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var location = await _locationRepo.GetAsync(id);
@@ -76,7 +88,10 @@ namespace WebStorePrototype.Server.Controllers
             }
             _locationRepo.Delete(location);
             await _locationRepo.SaveAsync();
-            return Ok();
+            
+            await _redisService.DeleteAsync($"location:{id}");
+            await _redisService.DeleteAsync("locations:all");
+            return NoContent();
 
         }
 

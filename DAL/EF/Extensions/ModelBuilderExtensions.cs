@@ -20,6 +20,7 @@ namespace DAL.EF.Extensions
             modelBuilder.ApplyConfiguration(new ProductConfiguration());
             modelBuilder.ApplyConfiguration(new ProductImageConfiguration());
             modelBuilder.ApplyConfiguration(new StockConfiguration());
+            modelBuilder.ApplyConfiguration(new SubcategoryConfiguration());
         }
     }
 }

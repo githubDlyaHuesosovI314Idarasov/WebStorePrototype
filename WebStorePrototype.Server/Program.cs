@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Keycloak.AuthServices.Authorization;
 using WebStorePrototype.Server.Models;
+using FluentValidation;
 using Microsoft.Extensions.Caching.Memory;
 using WebStorePrototype.Server.Services;
 using WebStorePrototype.Server.Services.Base;
@@ -29,11 +30,12 @@ try
     builder.Logging.AddSeq();
     builder.Logging.AddSerilog();
     builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddValidatorsFromAssemblyContaining<Program>();
     builder.Services.AddSwaggerGen();
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddKeycloakService(builder.Configuration);
     builder.Services.AddRedisService(builder.Configuration);
-
+   
     builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
     builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
     builder.Services.AddScoped<IFavoriteProductsService, FavoriteProductsService>();

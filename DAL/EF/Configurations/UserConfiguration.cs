@@ -18,7 +18,7 @@ namespace DAL.EF.Configurations
 
             builder.HasOne(x => x.FavoriteProducts)
                 .WithOne(x => x.User)
-                .HasForeignKey<FavoriteProducts>(x => x.UserId)
+                .HasForeignKey<FavoriteProduct>(x => x.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasMany(x => x.Orders)

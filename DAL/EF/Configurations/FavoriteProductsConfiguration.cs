@@ -7,13 +7,13 @@ using System.Text;
 
 namespace DAL.EF.Configurations
 {
-    public class FavoriteProductsConfiguration : IEntityTypeConfiguration<FavoriteProducts>
+    public class FavoriteProductsConfiguration : IEntityTypeConfiguration<FavoriteProduct>
     {
-        public void Configure(EntityTypeBuilder<FavoriteProducts> builder)
+        public void Configure(EntityTypeBuilder<FavoriteProduct> builder)
         {
             builder.HasOne(x => x.User)
                    .WithOne(x => x.FavoriteProducts)
-                   .HasForeignKey<FavoriteProducts>(fp => fp.UserId)
+                   .HasForeignKey<FavoriteProduct>(fp => fp.UserId)
                    .OnDelete(DeleteBehavior.Cascade);
 
         }

@@ -4,10 +4,10 @@ using System.Text;
 
 namespace DAL.Models
 {
-    public class ViewedProducts : Entity
+    public class FavoriteProduct : Entity
     {
         public String? UserId { get; set; }
         public User? User { get; set; }
-        public IEnumerable<Product> Products { get; set; } = null!;
+        public Product? Product { get; set; }  
     }
 }

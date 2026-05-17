@@ -15,7 +15,7 @@ namespace DAL.EF
         public DbSet<Product> Products { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<FavoriteProducts> FavoriteProducts { get; set; }
+        public DbSet<FavoriteProduct> FavoriteProducts { get; set; }
         public DbSet<ComparedProducts> ComparedProducts { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
         public DbSet<Stock> Stocks { get; set; }

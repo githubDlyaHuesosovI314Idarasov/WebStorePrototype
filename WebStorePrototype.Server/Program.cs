@@ -11,6 +11,10 @@ using Keycloak.AuthServices.Authorization;
 using WebStorePrototype.Server.Models;
 using Microsoft.Extensions.Caching.Memory;
 using WebStorePrototype.Server.Services;
+using WebStorePrototype.Server.Services.Base;
+using Serilog.Events;
+using MediatR;
+using WebStorePrototype.Server.Features.Behaviors;
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Verbose()
     .WriteTo.Console()
@@ -26,9 +30,13 @@ try
     builder.Logging.AddSerilog();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
-    builder.Services.AddSingleton<IConnectionMultiplexer>(
-        ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")!));
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")!));
     builder.Services.AddSingleton(typeof(RedisService<>));
+    builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+    builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+    builder.Services.AddScoped<IFavoriteProductsService, FavoriteProductsService>();
+    builder.Services.AddScoped<IViewedProductsService, ViewedProductService>();
     builder.Services.Configure<KeycloakConfiguration>(builder.Configuration.GetSection("Keycloak"));
     builder.Services.Configure<CookieOptions>(options =>
     {
@@ -58,7 +66,7 @@ try
         options.AddPolicy("AdminOnly", policy => policy.RequireRealmRoles("admin"));
     });
     builder.Services.AddControllers();
-
+    builder.Services.AddSignalR();
 
     builder.Services.AddExternalWebStoreDBLocalContext(builder.Configuration); // for local development db
     builder.Services.AddWebStoreDBLocalContext(builder.Configuration); // for production local db
@@ -76,9 +84,16 @@ try
     });
     var app = builder.Build();
 
+    
     app.UseDefaultFiles();
     app.MapStaticAssets();
-    
+    app.UseSerilogRequestLogging(options =>
+    {
+        options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
+        options.GetLevel = (httpContext, elapsed, ex) =>
+           httpContext.Request.Path.StartsWithSegments("/health") ? LogEventLevel.Verbose : LogEventLevel.Information;
+        
+    });    
 
     if (app.Environment.IsDevelopment())
     {

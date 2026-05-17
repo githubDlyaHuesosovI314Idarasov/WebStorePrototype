@@ -31,8 +31,9 @@ try
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
     builder.Services.AddHttpContextAccessor();
-    builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")!));
-    builder.Services.AddSingleton(typeof(RedisService<>));
+    builder.Services.AddKeycloakService(builder.Configuration);
+    builder.Services.AddRedisService(builder.Configuration);
+
     builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
     builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
     builder.Services.AddScoped<IFavoriteProductsService, FavoriteProductsService>();

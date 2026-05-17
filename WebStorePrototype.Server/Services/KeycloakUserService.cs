@@ -37,7 +37,6 @@ namespace WebStorePrototype.Server.Services
             }
 
             response.EnsureSuccessStatusCode();
-        
             return await response.Content.ReadFromJsonAsync<KeycloakUser>();
         }
     }

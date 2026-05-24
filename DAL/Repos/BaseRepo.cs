@@ -6,8 +6,7 @@ using System.Text;
 
 namespace DAL.Repos
 {
-    public class BaseRepo<Context, T> : IRepo<T> where T : Entity
-        where Context : DbContext
+    public class BaseRepo<Context, T> : IRepo<T> where T : Entity where Context : DbContext
     {
         protected readonly Context _context;
         private readonly DbSet<T> _dbSet;
@@ -16,7 +15,7 @@ namespace DAL.Repos
         }
         public async Task<T?> GetAsync(Guid id)
         {
-            return (await _dbSet.FindAsync(id));
+            return await _dbSet.FindAsync(id);
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()

@@ -31,10 +31,10 @@ namespace WebStorePrototype.Server.Services
             _cookieOptions = cookieOptions;
         }
 
-        public async Task<IEnumerable<Product>> GetProductsAsync(String? userId)
+        public async Task<IEnumerable<FavoriteProduct>> GetProductsAsync(String? userId)
         {
             var user = userId != null ? await _keycloakUserService.GetUserAsync(userId) : null;
-            return user != null ? await GetAuthenticatedAsync(userId!) : await GetAnonymousAsync();
+            return user != null ? await GetAuthenticatedAsync(userId) : await GetAnonymousAsync();
         }
         
         public async Task AddProductAsync(Guid productId, String? userId)
@@ -79,70 +79,71 @@ namespace WebStorePrototype.Server.Services
             await _redisService.DeleteAsync(CacheKey(userId));
         }
 
-        private async Task<IEnumerable<Product>> GetAnonymousAsync()
+        private async Task<IEnumerable<FavoriteProduct>> GetAnonymousAsync()
         {
             var ids = ReadCookieIds();
-            if (!ids.Any()) return Enumerable.Empty<Product>();
+            if (!ids.Any()) return Enumerable.Empty<FavoriteProduct>();
 
             return (await _productsRepo.GetAllAsync())
                 .Where(p => ids.Contains(p.Id))
+                .Select(p => new FavoriteProduct { ProductId = p.Id, Product = p })
                 .ToList();
         }
 
-        private async Task<IEnumerable<Product>> GetAuthenticatedAsync(String userId)
+        private async Task<IEnumerable<FavoriteProduct>> GetAuthenticatedAsync(String userId)
         {
             var key = CacheKey(userId);
 
             if (await _redisService.IsRedisAvailable(key))
             {
                 var cached = await _redisService.GetListAsync(key);
-                if (cached.Any())
-                    return cached.SelectMany(fp => fp.Products ?? Enumerable.Empty<Product>());
+                if (cached.Any()) return cached;
             }
 
-            var record = await GetOrCreateRecordAsync(userId);
-            await _redisService.SetListAsync(key, new[] { record }, CacheTtl);
-            return record.Products ?? Enumerable.Empty<Product>();
+            var all = await _favoritesRepo.GetAllAsync();
+
+            var records = all.ToList().Where(x => x.UserId == userId);
+            await _redisService.SetListAsync(key, records, CacheTtl);
+            return records;
         }
 
         private async Task PersistToDbAsync(String userId, Guid productId)
         {
-            var record = await GetOrCreateRecordAsync(userId);
-            var product = await _productsRepo.GetAsync(productId);
-            if (product == null) return;
+            var all = await _favoritesRepo.GetAllAsync();
+            var existing = all.FirstOrDefault(v => v.UserId == userId && v.ProductId == productId);
 
-            var list = record.Products?.ToList() ?? new List<Product>();
-            if (list.Any(p => p.Id == productId)) return;
+            if (existing != null)
+            {
+                _favoritesRepo.Update(existing);
+            }
+            else
+            {
+                var record = new FavoriteProduct
+                {
+                    UserId = userId,
+                    ProductId = productId,
+                    Product = await _productsRepo.GetAsync(productId)
+                };
+                await _favoritesRepo.AddAsync(record);
+            }
 
-            list.Add(product);
-            record.Products = list;
-            _favoritesRepo.Update(record);
             await _favoritesRepo.SaveAsync();
         }
 
         private async Task RemoveFromDbAsync(String userId, Guid productId)
         {
-            var record = await GetOrCreateRecordAsync(userId);
-            var list = record.Products?.ToList() ?? new List<Product>();
+            
+            var favoriteProdcts = await _favoritesRepo.GetAllAsync();
+            var favoriteProduct = favoriteProdcts.FirstOrDefault(v => v.UserId == userId && v.ProductId == productId);
+            if (favoriteProduct != null)
+            {
+                _favoritesRepo.Delete(favoriteProduct);
+                await _redisService.DeleteAsync(CacheKey(userId));
+            }
 
-            if (list.RemoveAll(p => p.Id == productId) == 0) return;
-
-            record.Products = list;
-            _favoritesRepo.Update(record);
-            await _favoritesRepo.SaveAsync();
+            return;
         }
 
-        private async Task<FavoriteProduct> GetOrCreateRecordAsync(String userId)
-        {
-            var all = await _favoritesRepo.GetAllAsync();
-            var record = all.FirstOrDefault(fp => fp.UserId == userId);
-            if (record != null) return record;
-
-            record = new FavoriteProduct { UserId = userId, Products = new List<Product>() };
-            await _favoritesRepo.AddAsync(record);
-            await _favoritesRepo.SaveAsync();
-            return record;
-        }
 
         private List<Guid> ReadCookieIds()
         {

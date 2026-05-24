@@ -12,6 +12,7 @@ namespace WebStorePrototype.Server.Models.DTO_s
         public Int64 AverageRating { get; set; }
         public Int32 ReviewCount { get; set; }
         public Int64? DiscountedPrice { get; set; }
+        public Boolean IsInStock { get; set; }
         public String? ThumbnailUrl { get; set; }
 
     }

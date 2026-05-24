@@ -17,7 +17,9 @@ namespace DAL.EF.Configurations
             builder.HasMany(x => x.Images).WithOne(x => x.Product).HasForeignKey(x => x.ProductId);
             builder.HasMany(x=> x.Reviews).WithOne(x => x.Product).HasForeignKey(x => x.ProductId);
             builder.HasMany(x => x.ViewedProducts).WithOne(x => x.Product).HasForeignKey(x => x.ProductId);
-           
+            builder.HasMany(x => x.FavoriteProducts).WithOne(x => x.Product).HasForeignKey(x => x.ProductId);
+            builder.HasMany(x => x.CartProducts).WithOne(x => x.Product).HasForeignKey(x => x.ProductId);
+
         }
     }
 }

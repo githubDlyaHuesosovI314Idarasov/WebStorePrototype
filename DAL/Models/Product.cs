@@ -15,6 +15,7 @@ namespace DAL.Models
         public Int64? DiscountedPrice { get; set; }
         public Boolean IsOnSale { get; set; }
         public Boolean IsCouponApplicable { get; set; }
+        public Boolean IsInStock { get; set; }
 
         [ForeignKey("CategoryId")]
         public Guid CategoryId { get; set; }
@@ -23,6 +24,8 @@ namespace DAL.Models
         public IEnumerable<ProductImage> Images { get; set; } = new List<ProductImage>();
         public IEnumerable<Review> Reviews { get; set; } = new List<Review>();
         public IEnumerable<ViewedProduct> ViewedProducts { get; set; } = new List<ViewedProduct>();
+        public IEnumerable<FavoriteProduct> FavoriteProducts { get; set; } = new List<FavoriteProduct>();
+        public IEnumerable<CartProduct> CartProducts { get; set; } = new List<CartProduct>();
 
     }
 }

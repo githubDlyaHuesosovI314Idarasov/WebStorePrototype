@@ -2,15 +2,14 @@
 
 namespace WebStorePrototype.Server.Services.Base
 {
-    public interface IFavoriteProductsService
+    public interface ICartProductsService
     {
-        Task<IEnumerable<FavoriteProduct>> GetProductsAsync(String? userId);
+        Task<IEnumerable<CartProduct>> GetProductsAsync(String? userId);
 
         Task AddProductAsync(Guid productId, String? userId);
-
+    
         Task RemoveProductAsync(Guid productId, String? userId);
-
-        Task MergeCookieIntoUserAsync(String service);
-
+    
+        Task MergeCookieIntoUserAsync(String userId);
     }
 }

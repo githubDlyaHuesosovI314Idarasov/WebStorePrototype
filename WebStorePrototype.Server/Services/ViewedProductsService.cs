@@ -2,6 +2,7 @@
 using DAL.Repos;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using WebStorePrototype.Server.Models;
 using WebStorePrototype.Server.Services.Base;
 
 namespace WebStorePrototype.Server.Services
@@ -82,12 +83,9 @@ namespace WebStorePrototype.Server.Services
             return records;
         }
 
-        private async Task PersistToDbAsync(String userId, Guid? productId, DateTime? when = null)
+        private async Task PersistToDbAsync(String userId, Guid productId, DateTime? when = null)
         {
-            if (productId == null) return;
-
             var all = await _viewedRepo.GetAllAsync();
-
             var existing = all.FirstOrDefault(v => v.UserId == userId && v.ProductId == productId);
 
             if (existing != null)
@@ -101,7 +99,8 @@ namespace WebStorePrototype.Server.Services
                 {
                     UserId = userId,
                     ProductId = productId,
-                    WhenViewed = when ?? DateTime.UtcNow
+                    WhenViewed = when ?? DateTime.UtcNow,
+                    Product = await _productsRepo.GetAsync(productId)
                 };
                 await _viewedRepo.AddAsync(record);
             }
@@ -115,7 +114,7 @@ namespace WebStorePrototype.Server.Services
             var items = ReadCookieEntries();
 
             items.RemoveAll(e => e.ProductId == productId);
-            items.Insert(0, new CookieEntry(productId, DateTime.UtcNow));
+            items.Insert(0, new ViewedProductCookieEntry(productId, DateTime.UtcNow));
 
             if (items.Count > MaxCookieItems)
             {
@@ -135,14 +134,13 @@ namespace WebStorePrototype.Server.Services
                 })
                 .ToList();
         }
-        private record CookieEntry(Guid ProductId, DateTime WhenViewed);
-        private List<CookieEntry> ReadCookieEntries()
+        private List<ViewedProductCookieEntry> ReadCookieEntries()
         {
             var raw = Http.Request.Cookies[CookieKey];
-            if (String.IsNullOrEmpty(raw)) return new List<CookieEntry>();
+            if (String.IsNullOrEmpty(raw)) return new List<ViewedProductCookieEntry>();
 
-            try { return JsonSerializer.Deserialize<List<CookieEntry>>(raw) ?? new List<CookieEntry>(); }
-            catch { return new List<CookieEntry>(); }
+            try { return JsonSerializer.Deserialize<List<ViewedProductCookieEntry>>(raw) ?? new List<ViewedProductCookieEntry>(); }
+            catch { return new List<ViewedProductCookieEntry>(); }
         }
 
         private static String CacheKey(String userId) => $"viewed_products:{userId}";

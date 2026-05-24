@@ -1,16 +1,12 @@
-using DAL.EF;
 using Serilog;
 using Microsoft.EntityFrameworkCore;
-using Npgsql.EntityFrameworkCore.PostgreSQL;
 using StackExchange.Redis;
 using WebStorePrototype.Server.Extensions;
-using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Keycloak.AuthServices.Authorization;
 using WebStorePrototype.Server.Models;
 using FluentValidation;
-using Microsoft.Extensions.Caching.Memory;
 using WebStorePrototype.Server.Services;
 using WebStorePrototype.Server.Services.Base;
 using Serilog.Events;
@@ -30,6 +26,7 @@ try
     builder.Logging.AddSeq();
     builder.Logging.AddSerilog();
     builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSignalR();
     builder.Services.AddValidatorsFromAssemblyContaining<Program>();
     builder.Services.AddSwaggerGen();
     builder.Services.AddHttpContextAccessor();

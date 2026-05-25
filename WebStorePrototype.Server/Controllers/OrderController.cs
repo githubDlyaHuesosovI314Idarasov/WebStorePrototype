@@ -4,6 +4,9 @@ using Order = DAL.Models.Order;
 using StackExchange.Redis;
 using DAL.Repos;
 using Microsoft.EntityFrameworkCore;
+using MediatR;
+using WebStorePrototype.Server.Features.Base;
+using WebStorePrototype.Server.Features.CrudHandlers;
 
 namespace WebStorePrototype.Server.Controllers
 {
@@ -11,87 +14,45 @@ namespace WebStorePrototype.Server.Controllers
     [Route("api/[controller]")]
     public class OrderController : Controller
     {
-
-        private readonly BaseRepo<DbContext, Order> _orderRepo;
-        private readonly RedisService<Order> _redisService;
-
-        public OrderController(DbContext dbContext, RedisService<Order> redisService)
+        private readonly IMediator _mediator;
+        public OrderController(IMediator mediator)
         {
-            _orderRepo = new BaseRepo<DbContext, Order>(dbContext);
-            _redisService = redisService;
+            _mediator = mediator;
         }
 
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<Order?>> Get(Guid id)
         {
-            RedisKey redisKey = new RedisKey($"order:{id}");
-
-            Order? order = await _redisService.GetAsync(redisKey);
-            if (order != null) return Ok(order);
-
-            order = await _orderRepo.GetAsync(id);
-            if (order == null) return NotFound();
-
-            await _redisService.SetAsync(redisKey, order);
+            var order = await _mediator.Send(new GetByIdQuery<Order>(id));
             return Ok(order);
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Order>>> GetAll()
         {
-            RedisKey redisKey = new RedisKey($"orders:all");
-            
-            if (await _redisService.IsRedisAvailable(redisKey))
-            {
-                IEnumerable<Order> cached = await _redisService.GetListAsync(redisKey);
-                return Ok(cached);
-            }
-
-            IEnumerable<Order> orders = await _redisService.GetListAsync(redisKey);
-            await _redisService.SetListAsync(redisKey, orders);
+            var orders = await _mediator.Send(new GetAllQuery<Order>());
             return Ok(orders);
-
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(Order order)
         {
-            await _orderRepo.AddAsync(order);
-            await _orderRepo.SaveAsync();
-
-            await _redisService.SetAsync($"order:{order.Id}", order);
-            await _redisService.DeleteAsync("orders:all");
-            return Ok(order);
-
+            await _mediator.Send(new CreateCommand<Order>(order));
+            return Created();
         }
 
         [HttpPut]
         public async Task<IActionResult> Update(Order order)
         {
-            _orderRepo.Update(order);
-            await _orderRepo.SaveAsync();
-            
-            await _redisService.SetAsync($"order:{order.Id}", order);
-            await _redisService.DeleteAsync("orders:all");
+            await _mediator.Send(new UpdateCommand<Order>(order));
             return Ok(order);
         }
 
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var order = await _orderRepo.GetAsync(id);
-            if (order == null)
-            {
-                return NotFound();
-            }
-            _orderRepo.Delete(order);
-            await _orderRepo.SaveAsync();
-
-            await _redisService.DeleteAsync($"order:{id}");
-            await _redisService.DeleteAsync("orders:all");
-
-            return Ok();
-
+            await _mediator.Send(new DeleteCommand<Order>(id));
+            return NoContent();
         }
     }
 }

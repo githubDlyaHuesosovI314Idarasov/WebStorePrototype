@@ -1,9 +1,11 @@
 ﻿using DAL.Models;
 using DAL.Repos;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
+using WebStorePrototype.Server.Features.Base;
 using WebStorePrototype.Server.Services;
 
 namespace WebStorePrototype.Server.Controllers
@@ -12,85 +14,47 @@ namespace WebStorePrototype.Server.Controllers
     [ApiController]
     public class ReviewController : ControllerBase
     {
-        private readonly BaseRepo<DbContext, Review> _reviewRepo;
-        private readonly RedisService<Review> _redisService;
+        private readonly IMediator _mediator;
 
-        public ReviewController(DbContext dbContext, RedisService<Review> redisService)
+        public ReviewController(IMediator mediator)
         {
-            _reviewRepo = new BaseRepo<DbContext, Review>(dbContext);
-            _redisService = redisService;
+            _mediator = mediator;
         }
 
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<Review?>> Get(Guid id)
         {
-            RedisKey redisKey = new RedisKey($"review:{id}");
-            
-            Review? review = await _redisService.GetAsync(redisKey);
-            if(review != null) { return Ok(review); }
-
-            review = await _reviewRepo.GetAsync(id);
-            if (review == null) { return NoContent(); }
-
-            await _redisService.SetAsync(redisKey, review);
+            var review = await _mediator.Send(new GetByIdQuery<Review>(id));
             return Ok(review);
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Review>>> GetAll()
         {
-            RedisKey redisKey = new RedisKey("reviews:all");
-
-            IEnumerable<Review> review = await _redisService.GetListAsync(redisKey);
-            if(review != null) { return Ok(review); }
-
-            review = await _reviewRepo.GetAllAsync();
-            if (review == null)
-            {
-                return NoContent();
-            }
-
-            var result = await _reviewRepo.GetAllAsync();
-            return Ok(result);
+            var reviews = await _mediator.Send(new GetAllQuery<Review>());
+            return Ok(reviews);
         }
 
         [HttpPost]
         public async Task<ActionResult<Review>> Create(Review review)
         {
-            await _reviewRepo.AddAsync(review);
-            await _reviewRepo.SaveAsync();
-
-            await _redisService.SetAsync($"review:{review.Id}", review);
-            await _redisService.DeleteAsync("reviews:all");
-            return Ok(review);
-
+            await _mediator.Send(new CreateCommand<Review>(review));
+            return Created();
         }
 
         [HttpPut]
         public async Task<ActionResult<Review>> Update(Review review)
         {
-            _reviewRepo.Update(review);
-            await _reviewRepo.SaveAsync();
-            
-            await _redisService.SetAsync($"review:{review.Id}", review);
-            await _redisService.DeleteAsync("reviews:all");
+            await _mediator.Send(new UpdateCommand<Review>(review));
             return Ok(review);
         }
 
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var review = await _reviewRepo.GetAsync(id);
-            if (review == null)
-            {
-                return NotFound();
-            }
-            _reviewRepo.Delete(review);
-            await _reviewRepo.SaveAsync();
-
-            await _redisService.DeleteAsync($"review:{id}");
-            await _redisService.DeleteAsync("reviews:all");
+            await _mediator.Send(new DeleteCommand<Review>(id));
             return NoContent();
         }
     }
-}
+} 
+

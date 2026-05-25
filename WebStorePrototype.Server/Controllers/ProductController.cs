@@ -1,12 +1,14 @@
 ﻿using DAL.EF;
 using DAL.Models;
 using DAL.Repos;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 using System.Data;
 using System.Data.Common;
 using System.Text.Json;
+using WebStorePrototype.Server.Features.Base;
 using WebStorePrototype.Server.Services;
 
 namespace WebStorePrototype.Server.Controllers
@@ -15,45 +17,23 @@ namespace WebStorePrototype.Server.Controllers
     [Route("api/[controller]")]
     public class ProductController : Controller
     {
-        private readonly BaseRepo<DbContext, Product> _productRepo;
-        private readonly RedisService<Product> _redisService;
-        public ProductController(DbContext dbContext, RedisService<Product> redisService)
+        private readonly IMediator _mediator;
+        public ProductController(IMediator mediator)
         {
-            _productRepo = new BaseRepo<DbContext, Product>(dbContext);
-            _redisService = redisService;
+            _mediator = mediator;
         }
 
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<Product?>> Get(Guid id)
         {
-            RedisKey redisKey = $"product:{id}";
-
-            Product? product = await _redisService.GetAsync(redisKey);
-            if(product != null) { return Ok(product); }
-        
-            product = await _productRepo.GetAsync(id);
-            if (product == null) { return NotFound(); }
-
-            await _redisService.SetAsync(redisKey, product);
+            var product = await _mediator.Send(new GetByIdQuery<Product>(id));
             return Ok(product);
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetAll()
         {
-            RedisKey redisKey = "products:all";
-
-            if(await _redisService.IsRedisAvailable(redisKey))
-            {
-                IEnumerable<Product> cached = await _redisService.GetListAsync(redisKey);
-                if(cached.Count() > 0) {
-                    return Ok(cached);
-                }
-       
-            }
-
-            IEnumerable<Product> products = await _productRepo.GetAllAsync();
-            await _redisService.SetListAsync(redisKey, products);
+            var products = await _mediator.Send(new GetAllQuery<Product>());
             return Ok(products);
 
         }
@@ -61,39 +41,21 @@ namespace WebStorePrototype.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<Product>> Create(Product product)
         {
-            await _productRepo.AddAsync(product);
-            await _productRepo.SaveAsync();
-
-            await _redisService.SetAsync($"product:{product.Id}", product);
-            await _redisService.DeleteAsync("products:all");
-            return CreatedAtAction(nameof(Get), new {id = product.Id}, product);
+            await _mediator.Send(new CreateCommand<Product>(product));
+            return Created();
         }
 
         [HttpPut]
         public async Task<ActionResult<Product>> Update(Product product)
         {
-            _productRepo.Update(product);
-            await _productRepo.SaveAsync();
-
-            await _redisService.SetAsync($"product:{product.Id}", product);
-            await _redisService.DeleteAsync("products:all");
+            await _mediator.Send(new UpdateCommand<Product>(product));
             return Ok(product);
         }
 
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var product = await _productRepo.GetAsync(id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            _productRepo.Delete(product);
-            await _productRepo.SaveAsync();
-            
-            await _redisService.DeleteAsync($"product:{id}");
-            await _redisService.DeleteAsync("products:all");
+            await _mediator.Send(new DeleteCommand<Product>(id));
             return NoContent();
 
         }

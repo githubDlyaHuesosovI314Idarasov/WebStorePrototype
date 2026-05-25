@@ -1,9 +1,12 @@
 ﻿using DAL.Models;
 using DAL.Repos;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
+using WebStorePrototype.Server.Features.Base;
+using WebStorePrototype.Server.Features.CrudHandlers;
 using WebStorePrototype.Server.Services;
 
 namespace WebStorePrototype.Server.Controllers
@@ -12,86 +15,47 @@ namespace WebStorePrototype.Server.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private readonly BaseRepo<DbContext, Category> _categoryRepo;
-        private readonly RedisService<Category> _redisService;
+        private readonly IMediator _mediator;
 
-        public CategoryController(DbContext dbContext, RedisService<Category> redisService)
+        public CategoryController(IMediator mediator)
         {
-            _categoryRepo = new BaseRepo<DbContext, Category>(dbContext);
-            _redisService = redisService;
+            _mediator = mediator;
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<Category?>> Get(Guid id)
+        public async Task<ActionResult<Category?>> GetAsync(Guid id)
         {
-            RedisKey redisKey = new RedisKey($"category:{id}");
-            
-            Category? category = await _redisService.GetAsync(redisKey);
-            if (category != null) { return Ok(category); }
-
-            category = await _categoryRepo.GetAsync(id);
-            if(category == null) { return NotFound(); }
-    
-            await _redisService.SetAsync(redisKey, category);
-            return Ok(category);
-
+           var category = await _mediator.Send(new GetByIdQuery<Category>(id));
+           if (category == null) return NotFound();
+           return Ok(category);
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetAll()
+        public async Task<ActionResult<IEnumerable<Category>>> GetAllAsync()
         {
-            RedisKey redisKey = new RedisKey("categories:all");
-            if (await _redisService.IsRedisAvailable(redisKey))
-            {
-                IEnumerable<Category> cached = await _redisService.GetListAsync(redisKey);
-                if (cached.Count() > 0)
-                {
-                    return Ok(cached);
-                }
-            }
-
-            var categories = await _categoryRepo.GetAllAsync();
-            await _redisService.SetListAsync(redisKey, categories);
+            var categories = await _mediator.Send(new GetAllQuery<Category>());
             return Ok(categories);
-
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(Category category)
         {
-            await _categoryRepo.AddAsync(category);
-            await _categoryRepo.SaveAsync();
-
-            await _redisService.SetAsync($"category:{category.Id}", category);
-            await _redisService.DeleteAsync("categories:all");
-            return Ok(category);
+            await _mediator.Send(new CreateCommand<Category>(category));
+            return Created();
         }
 
         [HttpPut]
         public async Task<IActionResult> Update(Category category)
         {
-            _categoryRepo.Update(category);
-            await _categoryRepo.SaveAsync();
-
-            await _redisService.SetAsync($"category:{category.Id}", category);
-            await _redisService.DeleteAsync("categories:all");
+            await _mediator.Send(new UpdateCommand<Category>(category));
             return Ok(category);
         }
 
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var category = await _categoryRepo.GetAsync(id);
-            if (category == null)
-            {
-                return NotFound();
-            }
-            _categoryRepo.Delete(category);
-            await _categoryRepo.SaveAsync();
-
-            await _redisService.DeleteAsync($"category:{id}");
-            await _redisService.DeleteAsync("categories:all");
-            return Ok();
+            await _mediator.Send(new DeleteCommand<Category>(id));
+            return NoContent();
 
         }
     }

@@ -1,10 +1,10 @@
-﻿using DAL.Models;
+﻿using AutoMapper;
+using DAL.Models;
 using DAL.Repos;
-using Microsoft.AspNetCore.Http;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using StackExchange.Redis;
-using WebStorePrototype.Server.Services;
+using WebStorePrototype.Server.Features.Base;
+
 
 namespace WebStorePrototype.Server.Controllers
 {
@@ -12,85 +12,47 @@ namespace WebStorePrototype.Server.Controllers
     [ApiController]
     public class LocationController : ControllerBase
     {
-        private readonly BaseRepo<DbContext, Location> _locationRepo;
-        private readonly RedisService<Location> _redisService;
+        private readonly IMediator _mediator;
 
-        public LocationController(DbContext dbContext, RedisService<Location> redisService)
+        public LocationController(IMediator mediator)
         {
-            _locationRepo = new BaseRepo<DbContext, Location>(dbContext);
-            _redisService = redisService;
+            _mediator = mediator;
         }
 
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<Location?>> Get(Guid id)
         {
-            RedisKey redisKey = new RedisKey($"locations:{id}");
-
-            Location? location = await _redisService.GetAsync(redisKey);
-            if (location != null) { return Ok(location); }
-
-            location = await _locationRepo.GetAsync(id);
-            if (location == null) { return NotFound(); }
-
-            await _redisService.SetAsync(redisKey, location);
+            var location = await _mediator.Send(new GetByIdQuery<Location>(id));
+            if(location == null) return NotFound();
             return Ok(location);
-
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Location>>> GetAll()
         {
-            RedisKey redisKey = new RedisKey("locations:all");
-            
-            if(await _redisService.IsRedisAvailable(redisKey)) {
-                IEnumerable<Location> cached = await _redisService.GetListAsync(redisKey);
-                if (cached.Count() > 0)
-                {
-                    return Ok(cached);
-                }
-            }
-
-            IEnumerable<Location> locations = await _locationRepo.GetAllAsync();
-            await _redisService.SetListAsync(redisKey, locations);
+            var locations = await _mediator.Send(new GetAllQuery<Location>());
             return Ok(locations);
-
         }
 
         [HttpPost]
         public async Task<ActionResult<Location>> Create(Location location)
         {
-            await _locationRepo.AddAsync(location);
-            await _locationRepo.SaveAsync();
-            
-            await _redisService.SetAsync($"location:{location.Id}", location);
-            await _redisService.DeleteAsync("locations:all");
-            return Ok(location);
+            await _mediator.Send(new CreateCommand<Location>(location));
+            return Created();
         }
 
         [HttpPut]
         public async Task<ActionResult<Location>> Update(Location location)
         {
-            _locationRepo.Update(location);
-            await _locationRepo.SaveAsync();
-
-            await _redisService.SetAsync($"location:{location.Id}", location);
-            await _redisService.DeleteAsync("locations:all");
+            var updatedLocation = await _mediator.Send(new UpdateCommand<Location>(location));
             return Ok(location);
         }
 
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var location = await _locationRepo.GetAsync(id);
-            if (location == null)
-            {
-                return NotFound();
-            }
-            _locationRepo.Delete(location);
-            await _locationRepo.SaveAsync();
-            
-            await _redisService.DeleteAsync($"location:{id}");
-            await _redisService.DeleteAsync("locations:all");
+            await _mediator.Send(new DeleteCommand<Location>(id));
+      
             return NoContent();
 
         }

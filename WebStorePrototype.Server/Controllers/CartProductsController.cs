@@ -4,11 +4,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebStorePrototype.Server.Features.CartProduct.Commands;
 using WebStorePrototype.Server.Features.CartProduct.Queries;
+using WebStorePrototype.Server.Models.DTO_s;
 
 namespace WebStorePrototype.Server.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
+    [ApiController]    
     public class CartProductsController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -17,32 +18,31 @@ namespace WebStorePrototype.Server.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<CartProduct>>> GetCartProducts([FromQuery] String? userId)
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<CartProductDTO>> GetCartProducs([FromQuery] Guid id)
         {
-            return Ok(await _mediator.Send(new GetCartProductQuery(userId)));
+            return Ok(await _mediator.Send(new GetCartProductQuery(id)));
         }
 
         [HttpPost("{productId:guid}")]
-        public async Task<IActionResult> AddCartProduct(Guid productId, [FromQuery] String? userId)
+        public async Task<IActionResult> AddCartProduct([FromQuery] Guid productId, [FromQuery] String? userId)
         {
             await _mediator.Send(new AddCartProductCommand(productId, userId));
+            return Created();
+        }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> RemoveCartProduct([FromQuery] Guid id)
+        {
+            await _mediator.Send(new RemoveCartProductCommand(id));
             return NoContent();
         }
 
-        [HttpDelete("{productId:guid}")]
-        public async Task<IActionResult> RemoveCartProduct(Guid productId, [FromQuery] String? userId)
+        [HttpPut]
+        public async Task<IActionResult> UpdateCartProduct([FromQuery] CartProduct cartProduct)
         {
-            await _mediator.Send(new RemoveCartProductCommand(productId, userId));
-            return NoContent();
-        }
-
-        [HttpPost("merge")]
-        public async Task<IActionResult> Merge([FromQuery] String userId)
-        {
-            if (String.IsNullOrWhiteSpace(userId)) { return BadRequest(); }
-            await _mediator.Send(new MergeCookieCartProductsCommand(userId));
-            return NoContent();
+            await _mediator.Send(new UpdateCartProductCommand(cartProduct));
+            return Ok(cartProduct);
         }
 
     }

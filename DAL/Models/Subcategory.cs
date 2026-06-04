@@ -10,6 +10,9 @@ namespace DAL.Models
         public String Route { get; set; } = null!;
         public Guid CategoryId { get; set; }
         public Category Category { get; set; } = null!;
+        public IEnumerable<Product> Products { get; set; } = new List<Product>();
+        public IEnumerable<ProductAttibuteGroup> ProductAttibuteGroups { get; set; } = new List<ProductAttibuteGroup>();
+        public IEnumerable<ComparedProduct> ComparedProducts { get; set; } = new List<ComparedProduct>();
 
     }
 }

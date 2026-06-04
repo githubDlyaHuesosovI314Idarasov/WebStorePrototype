@@ -11,7 +11,7 @@ namespace DAL.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<Review> builder)
         {
-            builder.HasOne(x => x.User).WithMany(x => x.Reviews).HasForeignKey(x => x.UserId);
+            
         }
     }
 }

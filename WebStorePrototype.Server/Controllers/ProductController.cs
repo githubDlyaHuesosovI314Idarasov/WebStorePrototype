@@ -61,36 +61,11 @@ namespace WebStorePrototype.Server.Controllers
         }
 
         [HttpGet("batch")]
-        public async Task<ActionResult<IEnumerable<Product>>> GetBatch([FromQuery] List<Guid> ids)
+        public async Task<ActionResult<IEnumerable<Product>>> Batch(List<Guid> ids)
         {
-            if (!ids.Any()) return Ok(Enumerable.Empty<Product>());
+            var products = await _mediator.Send(new GetBatchQuery<Product>(ids));
+            return Ok(products);
 
-            var result = new List<Product>();
-            var missing = new List<Guid>();
-
-            foreach (var id in ids)
-            {
-                var cached = await _redisService.GetAsync($"product:{id}");
-                if (cached != null)
-                    result.Add(cached);
-                else
-                    missing.Add(id);
-            }
-
-            if (missing.Any())
-            {
-                var fromDb = (await _productRepo.GetAllAsync())
-                    .Where(p => missing.Contains(p.Id))
-                    .ToList();
-
-                foreach (var p in fromDb)
-                    await _redisService.SetAsync($"product:{p.Id}", p);
-
-                result.AddRange(fromDb);
-            }
-
-            return Ok(result);
         }
-
     }
 }

@@ -17,6 +17,7 @@ namespace WebStorePrototype.Server.Services
         public RedisService(IConnectionMultiplexer multiplexer, ResiliencePipelineProvider<String> pipelineProvider) 
         {
             _redis = multiplexer.GetDatabase();
+
             _pipeline = pipelineProvider.GetPipeline("redis-pipeline");
         }
         
@@ -44,6 +45,14 @@ namespace WebStorePrototype.Server.Services
             await _pipeline.ExecuteAsync(async ct =>
             {
                 await _redis.StringSetAsync(redisKey, JsonSerializer.Serialize(entity), ttl ?? TimeSpan.FromMinutes(5));
+            });
+        }
+
+        public async Task SetAsync(RedisKey redisKey, T entity)
+        {
+            await _pipeline.ExecuteAsync(async ct =>
+            {
+                await _redis.StringSetAsync(redisKey, JsonSerializer.Serialize(entity), TimeSpan.FromMinutes(5));
             });
         }
 
@@ -81,5 +90,9 @@ namespace WebStorePrototype.Server.Services
             catch (RedisException) { return false; }
         }
 
+        public IBatch CreateBatch()
+        {
+            return _redis.CreateBatch();
+        }
     }
 }

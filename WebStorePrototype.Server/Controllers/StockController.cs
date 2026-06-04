@@ -58,5 +58,12 @@ namespace WebStorePrototype.Server.Controllers
             return NoContent();
 
         }
+
+        [HttpGet("batch")]
+        public async Task<ActionResult<IEnumerable<Stock>>> Batch(List<Guid> ids)
+        {
+            var stocks = await _mediator.Send(new GetBatchQuery<Stock>(ids));
+            return Ok(stocks);
+        }
     }
 }

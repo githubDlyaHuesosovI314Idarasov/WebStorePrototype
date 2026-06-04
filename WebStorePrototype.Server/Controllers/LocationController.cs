@@ -57,5 +57,12 @@ namespace WebStorePrototype.Server.Controllers
 
         }
 
+        [HttpGet("batch")]
+        public async Task<ActionResult<IEnumerable<Location>>> Batch(List<Guid> ids)
+        {
+            var locations = await _mediator.Send(new GetBatchQuery<Location>(ids));
+            return Ok(locations);
+        }
+
     }
 }

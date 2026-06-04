@@ -1,5 +1,4 @@
-﻿using Auth0.AspNetCore.Authentication;
-using DAL.EF;
+﻿using DAL.EF;
 using Microsoft.EntityFrameworkCore;
 using Polly;
 using StackExchange.Redis;
@@ -8,6 +7,7 @@ using WebStorePrototype.Server.Services;
 using System.Net;
 using Polly.Retry;
 using Polly.CircuitBreaker;
+using Microsoft.Extensions.Caching.Hybrid;
 
 namespace WebStorePrototype.Server.Extensions
 {
@@ -32,20 +32,20 @@ namespace WebStorePrototype.Server.Extensions
 
         public static void AddExternalWebStoreDBLocalContext(this IServiceCollection services, IConfiguration configuration) // for development
         {
-            services.AddDbContext<ExternalWebStoreDBContext>(options =>
+            services.AddDbContext<WebStoreDBContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString("LocalDev")));
         }
 
         public static void AddWebStoreDbDockerContext(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<WebStoreDBContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("DockerDev")));
+                options.UseNpgsql(configuration.GetConnectionString("DockerDefault")));
         }
 
         public static void AddExternalWebStoreDbDockerContext(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<ExternalWebStoreDBContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("DockerDefault")));
+            services.AddDbContext<WebStoreDBContext>(options =>
+                options.UseNpgsql(configuration.GetConnectionString("DockerDev")));
         }
 
         public static void AddWebStoreDBCloudContext(this IServiceCollection services, IConfiguration configuration)
@@ -56,10 +56,23 @@ namespace WebStorePrototype.Server.Extensions
 
         public static void AddExternalWebStoreDBCloudContext(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<ExternalWebStoreDBContext>(options =>
+            services.AddDbContext<WebStoreDBContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString("CloudDefault")));
         }
 
+        public static void AddHybridCache(this IServiceCollection services)
+        {
+            services.AddHybridCache(options =>
+            {
+                options.DefaultEntryOptions = new HybridCacheEntryOptions
+                {
+                    Expiration = TimeSpan.FromMinutes(1),
+                    LocalCacheExpiration = TimeSpan.FromSeconds(15),
+                };
+
+
+            });
+        }
 
 
         // This method is commented out because the project has been switched to Keycloak for authentication, but it can be used as a reference for adding Auth0 authentication in the future if needed.

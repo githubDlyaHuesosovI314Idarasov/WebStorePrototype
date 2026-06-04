@@ -14,16 +14,19 @@ namespace DAL.EF
         public WebStoreDBContext(DbContextOptions<WebStoreDBContext> options) : base(options) { }
         public DbSet<Product> Products { get; set; }
         public DbSet<Order> Orders { get; set; }
-        public DbSet<User> Users { get; set; }
         public DbSet<FavoriteProduct> FavoriteProducts { get; set; }
-        public DbSet<ComparedProducts> ComparedProducts { get; set; }
+        public DbSet<ComparedProduct> ComparedProducts { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
         public DbSet<Stock> Stocks { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Location> Locations { get; set; }
         public DbSet<Subcategory> Subcategories { get; set; }
         public DbSet<CarouselImage> CaroselImages { get; set; }
-
+        public DbSet<ProductAttribute> ProductAttributes { get; set; }
+        public DbSet<ProductAttibuteGroup> ProductAttibuteGroups { get; set; }
+        public DbSet<ViewedProduct> ViewedProducts { get; set; }
+        public DbSet<CartProduct> CartProducts { get; set; }
+        public DbSet<Review> Reviews { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

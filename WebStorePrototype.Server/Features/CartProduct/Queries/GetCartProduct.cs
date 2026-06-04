@@ -1,25 +1,40 @@
 ﻿using AutoMapper;
+using DAL.EF;
+using DAL.Models;
+using DAL.Repos;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Hybrid;
+using StackExchange.Redis;
 using WebStorePrototype.Server.Models.DTO_s;
+using WebStorePrototype.Server.Services;
 using WebStorePrototype.Server.Services.Base;
+using CartProductEntity = DAL.Models.CartProduct;
 
 namespace WebStorePrototype.Server.Features.CartProduct.Queries
 {
-    public record class GetCartProductQuery(String? userId) : IRequest<IEnumerable<CartProductDTO>>;
+    public record class GetCartProductQuery(Guid Id) : IRequest<CartProductDTO>;
 
-    public class GetCartProductsHandler : IRequestHandler<GetCartProductQuery, IEnumerable<CartProductDTO>>
+    public class GetCartProductsHandler : IRequestHandler<GetCartProductQuery, CartProductDTO>
     {
-        private readonly ICartProductsService _service;
+        private readonly Repo<CartProductEntity> _cartRepo;
+        private readonly RedisService<CartProductEntity> _redisService;
         private readonly IMapper _mapper;
-        public GetCartProductsHandler(ICartProductsService service, IMapper mapper)
+        public GetCartProductsHandler(WebStoreDBContext dbContext, HybridCache cache, IMapper mapper, RedisService<CartProductEntity> redisService)
         {
-            _service = service;
+            _cartRepo = new Repo<CartProductEntity>(dbContext, cache);
             _mapper = mapper;
+            _redisService = redisService;
         }
-        public async Task<IEnumerable<CartProductDTO>> Handle(GetCartProductQuery request, CancellationToken cancellationToken)
+        public async Task<CartProductDTO> Handle(GetCartProductQuery request, CancellationToken cancellationToken)
         {
-            var products = await _service.GetProductsAsync(request.userId);
-            return _mapper.Map<IEnumerable<CartProductDTO>>(products);
+            RedisKey redisKey = $"cartProduct:{request.Id}";
+            if (await _redisService.IsRedisAvailable(redisKey))
+            {
+                return _mapper.Map<CartProductDTO>(await _redisService.GetAsync(redisKey)) ;
+            }
+            
+            return _mapper.Map<CartProductDTO>(await _cartRepo.GetAsync(request.Id));
         }
     }
 }

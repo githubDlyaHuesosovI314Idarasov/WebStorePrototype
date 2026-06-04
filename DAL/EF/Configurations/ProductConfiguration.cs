@@ -12,13 +12,16 @@ namespace DAL.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<Product> builder)
         {
-            builder.HasOne(x => x.Category).WithMany(x => x.Products).HasForeignKey(x => x.CategoryId);
+            builder.HasOne(x => x.Subcategory).WithMany(x => x.Products).HasForeignKey(x => x.SubcategoryId);
             builder.HasMany(x => x.Stocks).WithOne(x => x.Product).HasForeignKey(x => x.ProductId);
             builder.HasMany(x => x.Images).WithOne(x => x.Product).HasForeignKey(x => x.ProductId);
             builder.HasMany(x=> x.Reviews).WithOne(x => x.Product).HasForeignKey(x => x.ProductId);
             builder.HasMany(x => x.ViewedProducts).WithOne(x => x.Product).HasForeignKey(x => x.ProductId);
             builder.HasMany(x => x.FavoriteProducts).WithOne(x => x.Product).HasForeignKey(x => x.ProductId);
             builder.HasMany(x => x.CartProducts).WithOne(x => x.Product).HasForeignKey(x => x.ProductId);
+            builder.HasMany(x => x.ComparedProducts).WithOne(x => x.Product).HasForeignKey(x => x.ProductId);
+
+
 
         }
     }

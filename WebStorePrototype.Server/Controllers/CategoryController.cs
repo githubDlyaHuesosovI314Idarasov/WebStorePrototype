@@ -25,9 +25,9 @@ namespace WebStorePrototype.Server.Controllers
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<Category?>> GetAsync(Guid id)
         {
-           var category = await _mediator.Send(new GetByIdQuery<Category>(id));
-           if (category == null) return NotFound();
-           return Ok(category);
+            var category = await _mediator.Send(new GetByIdQuery<Category>(id));
+            if (category == null) return NotFound();
+            return Ok(category);
         }
 
         [HttpGet]
@@ -57,6 +57,13 @@ namespace WebStorePrototype.Server.Controllers
             await _mediator.Send(new DeleteCommand<Category>(id));
             return NoContent();
 
+        }
+
+        [HttpGet("batch")]
+        public async Task<ActionResult<IEnumerable<Category>>> Batch(List<Guid> ids)
+        {
+            var categories = await _mediator.Send(new GetBatchQuery<Category>(ids));
+            return Ok(categories);
         }
     }
 }

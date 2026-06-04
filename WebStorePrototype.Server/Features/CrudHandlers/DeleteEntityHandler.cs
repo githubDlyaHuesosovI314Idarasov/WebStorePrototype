@@ -1,7 +1,9 @@
 ﻿using DAL;
+using DAL.EF;
 using DAL.Repos;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Hybrid;
 using WebStorePrototype.Server.Features.Base;
 using WebStorePrototype.Server.Services;
 
@@ -9,13 +11,13 @@ namespace WebStorePrototype.Server.Features.CrudHandlers
 {
     public class DeleteEntityHandler<T> : IRequestHandler<DeleteCommand<T>> where T : Entity
     {
-        private readonly BaseRepo<DbContext, T> _repo;
+        private readonly Repo<T> _repo;
         private readonly RedisService<T> _redis;
-        private readonly string _cachePrefix;
+        private readonly String _cachePrefix;
 
-        public DeleteEntityHandler(DbContext context, RedisService<T> redis)
+        public DeleteEntityHandler(WebStoreDBContext context, RedisService<T> redis, HybridCache cache)
         {
-            _repo = new BaseRepo<DbContext, T>(context);
+            _repo = new Repo<T>(context, cache);
             _redis = redis;
             _cachePrefix = typeof(T).Name.ToLower();
         }
@@ -25,7 +27,7 @@ namespace WebStorePrototype.Server.Features.CrudHandlers
             var entity = await _repo.GetAsync(request.Id);
             if (entity == null) return;
 
-            _repo.Delete(entity);
+            await _repo.DeleteAsync(entity);
             await _repo.SaveAsync();
 
             await _redis.DeleteAsync($"{_cachePrefix}:{request.Id}");

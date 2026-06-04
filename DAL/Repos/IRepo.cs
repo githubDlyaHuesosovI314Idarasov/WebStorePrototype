@@ -6,10 +6,10 @@ namespace DAL.Repos
 {
     public interface IRepo<T> where T : class
     {
-        public Task<T> GetAsync(Guid id);
-        public Task<IEnumerable<T>> GetAllAsync();
-        public Task AddAsync(T entity);
-        public void Update(T entity);
-        public void Delete(T entity);
+        public ValueTask<T?> GetAsync(Guid id);
+        public ValueTask<IEnumerable<T>> GetAllAsync();
+        public ValueTask AddAsync(T entity, CancellationToken token);
+        public ValueTask<Boolean> UpdateAsync(T entity);
+        public ValueTask<Boolean> DeleteAsync(T entity);
     }
 }

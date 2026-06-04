@@ -12,6 +12,7 @@ namespace DAL.EF.Configurations
         public void Configure(EntityTypeBuilder<Subcategory> builder)
         {
             builder.HasOne(x => x.Category).WithMany(x => x.Subcategories).HasForeignKey(x => x.CategoryId).OnDelete(DeleteBehavior.Cascade);
+            builder.HasMany(x => x.ProductAttibuteGroups).WithOne(x => x.Subcategory).HasForeignKey(x => x.SubcategoryId);
         }
     }
 }

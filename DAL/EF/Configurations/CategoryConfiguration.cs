@@ -11,7 +11,6 @@ namespace DAL.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<Category> builder)
         {
-            builder.HasMany(x => x.Products).WithOne(x => x.Category).HasForeignKey(x => x.CategoryId);
             builder.HasMany(x => x.Subcategories).WithOne(x => x.Category).HasForeignKey(x => x.CategoryId);
         }
     }

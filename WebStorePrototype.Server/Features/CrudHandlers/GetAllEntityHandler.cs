@@ -1,7 +1,9 @@
 ﻿using DAL;
+using DAL.EF;
 using DAL.Repos;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Hybrid;
 using StackExchange.Redis;
 using WebStorePrototype.Server.Features.Base;
 using WebStorePrototype.Server.Services;
@@ -10,13 +12,13 @@ namespace WebStorePrototype.Server.Features.CrudHandlers
 {
     public class GetAllEntitiesHandler<T> : IRequestHandler<GetAllQuery<T>, IEnumerable<T>> where T : Entity
     {
-        private readonly BaseRepo<DbContext, T> _repo;
+        private readonly Repo<T> _repo;
         private readonly RedisService<T> _redis;
         private readonly string _cachePrefix;
 
-        public GetAllEntitiesHandler(DbContext context, RedisService<T> redis)
+        public GetAllEntitiesHandler(WebStoreDBContext context, RedisService<T> redis, HybridCache cache)
         {
-            _repo = new BaseRepo<DbContext, T>(context);
+            _repo = new Repo<T>(context, cache);
             _redis = redis;
             _cachePrefix = typeof(T).Name.ToLower();
         }

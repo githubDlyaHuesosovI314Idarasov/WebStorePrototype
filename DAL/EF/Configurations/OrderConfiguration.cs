@@ -11,10 +11,7 @@ namespace DAL.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<Order> builder)
         {
-            builder.HasOne(x => x.User)
-                   .WithMany(x => x.Orders)
-                   .HasForeignKey(x => x.UserId)
-                   .OnDelete(DeleteBehavior.Cascade);
+            
         }
     }
 }

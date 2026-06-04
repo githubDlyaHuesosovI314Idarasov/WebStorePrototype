@@ -7,36 +7,57 @@ using Microsoft.IdentityModel.Tokens;
 using Keycloak.AuthServices.Authorization;
 using WebStorePrototype.Server.Models;
 using FluentValidation;
-using WebStorePrototype.Server.Services;
-using WebStorePrototype.Server.Services.Base;
 using Serilog.Events;
 using MediatR;
 using WebStorePrototype.Server.Features.Behaviors;
+using Microsoft.Extensions.Caching.Hybrid;
+using WebStorePrototype.Server.Models.Mapping;
+
+
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Verbose()
     .WriteTo.Console()
-    .CreateLogger();
+    .CreateBootstrapLogger();
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.UseSerilog((context, services, configuration) => configuration
+    .MinimumLevel.Verbose()
+    .WriteTo.Console());
+
 try
 {
     Log.Information("Starting web server");
 
     builder.Services.AddLogging();
     builder.Logging.AddSeq();
-    builder.Logging.AddSerilog();
     builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddAutoMapper(cfg => {
+
+        cfg.AddProfile<CartProductProfile>();
+        cfg.AddProfile<ComparedProductProfile>();
+        cfg.AddProfile<FavoriteProductProfile>();
+        cfg.AddProfile<ProductProfile>();
+        cfg.AddProfile<ViewedProductProfile>();
+
+    });
     builder.Services.AddSignalR();
     builder.Services.AddValidatorsFromAssemblyContaining<Program>();
     builder.Services.AddSwaggerGen();
     builder.Services.AddHttpContextAccessor();
-    builder.Services.AddKeycloakService(builder.Configuration);
-    builder.Services.AddRedisService(builder.Configuration);
-   
-    builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
-    builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
-    builder.Services.AddScoped<IFavoriteProductsService, FavoriteProductsService>();
-    builder.Services.AddScoped<IViewedProductsService, ViewedProductService>();
+    builder.Services.AddMemoryCache();
+    builder.Services.AddHybridCache( options =>
+    {
+        options.MaximumPayloadBytes = 1024 * 1024 * 3; // 3 MB
+        options.DefaultEntryOptions = new HybridCacheEntryOptions
+        {
+            Expiration = TimeSpan.FromMinutes(5),
+        };
+    });
+    builder.Services.AddStackExchangeRedisCache(x => x.ConfigurationOptions = new ConfigurationOptions()
+    {
+        EndPoints = { builder.Configuration.GetSection("Redis:Endpoint").Value! },
+        Password = builder.Configuration.GetSection("Redis:Password").Value
+    });
     builder.Services.Configure<KeycloakConfiguration>(builder.Configuration.GetSection("Keycloak"));
     builder.Services.Configure<CookieOptions>(options =>
     {
@@ -45,6 +66,11 @@ try
         options.HttpOnly = false;
         options.Secure = true;
     });
+    builder.Services.AddKeycloakService(builder.Configuration);
+    builder.Services.AddRedisService(builder.Configuration);
+    builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+    builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
         {
@@ -68,23 +94,22 @@ try
     builder.Services.AddControllers();
     builder.Services.AddSignalR();
 
-    builder.Services.AddExternalWebStoreDBLocalContext(builder.Configuration); // for local development db
-    builder.Services.AddWebStoreDBLocalContext(builder.Configuration); // for production local db
-    builder.Services.AddExternalWebStoreDbDockerContext(builder.Configuration); // for docker db production
-    builder.Services.AddWebStoreDbDockerContext(builder.Configuration); // for docker db dev
 
-    // builder.Services.AddExternalWebStoreDBCloudContext(builder.Configuration);
-    // builder.Services.AddWebStoreDBCloudContext(builder.Configuration);
-    // This method is commented out because the project has been switched to Keycloak for authentication, but it can be used as a reference for adding Auth0 authentication in the future if needed.
-    // builder.Services.Add0Auth(builder.Configuration);
-    builder.Services.AddStackExchangeRedisCache(x => x.ConfigurationOptions = new ConfigurationOptions()
+    if (builder.Environment.IsDevelopment())
     {
-        EndPoints = { builder.Configuration.GetConnectionString("Redis")! },
-        Password = ""
-    });
+        builder.Services.AddExternalWebStoreDBLocalContext(builder.Configuration);  // for local development dbs
+        builder.Services.AddExternalWebStoreDbDockerContext(builder.Configuration); // for docker development db
+
+    }
+    if (builder.Environment.IsProduction())
+    {
+        builder.Services.AddWebStoreDBLocalContext(builder.Configuration); // for production local db
+        builder.Services.AddWebStoreDbDockerContext(builder.Configuration); // for docker db production
+    }
+
+
     var app = builder.Build();
 
-    
     app.UseDefaultFiles();
     app.MapStaticAssets();
     app.UseSerilogRequestLogging(options =>

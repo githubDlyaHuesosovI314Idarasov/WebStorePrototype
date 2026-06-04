@@ -4,10 +4,10 @@ namespace WebStorePrototype.Server.Models
 {
     public class KeycloakConfiguration 
     {
-        public String BaseUrl { get; set; }
-        public String Realm { get; set; }
-        public String ClientId { get; set; }
-        public String SecretKey { get; set; }
+        public String BaseUrl { get; set; } = null!;
+        public String Realm { get; set; } = null!;
+        public String ClientId { get; set; } = null!;
+        public String SecretKey { get; set; } = null!;
 
     }
 }

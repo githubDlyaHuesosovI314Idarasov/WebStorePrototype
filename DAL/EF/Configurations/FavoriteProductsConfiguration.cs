@@ -11,10 +11,7 @@ namespace DAL.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<FavoriteProduct> builder)
         {
-            builder.HasOne(x => x.User)
-                   .WithOne(x => x.FavoriteProducts)
-                   .HasForeignKey<FavoriteProduct>(fp => fp.UserId)
-                   .OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(x => x.Product).WithMany(x => x.FavoriteProducts).HasForeignKey(x => x.ProductId);
 
         }
     }

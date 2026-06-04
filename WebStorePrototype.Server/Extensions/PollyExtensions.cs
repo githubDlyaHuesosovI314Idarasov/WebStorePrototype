@@ -43,7 +43,7 @@ namespace WebStorePrototype.Server.Extensions
 
         public static IServiceCollection AddRedisService(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis")!));
+            services.AddSingleton<IConnectionMultiplexer>(x => ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis")!));
             services.AddSingleton(typeof(RedisService<>));
 
             services.AddResiliencePipeline("redis-pipeline", pipeline => {

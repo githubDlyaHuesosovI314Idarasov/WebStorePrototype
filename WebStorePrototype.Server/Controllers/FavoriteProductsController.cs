@@ -25,33 +25,30 @@ namespace WebStorePrototype.Server.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<FavoriteProductDTO>>> GetProducts(
-        [FromQuery] String? userId)
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<IEnumerable<FavoriteProductDTO>>> GetFavoriteProduct([FromQuery] Guid id)
         {
-            return Ok(await _mediator.Send(new GetFavoriteProducyQuery(userId)));
+            return Ok(await _mediator.Send(new GetFavoriteProductQuery(id)));
         }
 
         [HttpPost("{productId:guid}")]
-        public async Task<IActionResult> AddProduct(Guid productId, [FromQuery] String? userId)
+        public async Task<IActionResult> AddFavoriteProduct(Guid productId, [FromQuery] String? userId)
         {
             await _mediator.Send(new AddFavoriteProductCommand(productId, userId));
+            return Created();
+        }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> RemoveFavoriteProduct([FromQuery]Guid id)
+        {
+            await _mediator.Send(new RemoveFavoriteProductCommand(id));
             return NoContent();
         }
 
-        [HttpDelete("{productId:guid}")]
-        public async Task<IActionResult> RemoveProduct(Guid productId, [FromQuery] String? userId)
+        [HttpPut]
+        public async Task<IActionResult> UpdateFavoriteProduct(FavoriteProduct product)
         {
-            await _mediator.Send(new RemoveFavoriteProductCommand(productId, userId));
-            return NoContent();
-        }
-
-        [HttpPost("merge")]
-        public async Task<IActionResult> MergeCookie([FromQuery] String userId)
-        {
-            if(String.IsNullOrWhiteSpace(userId)) { return BadRequest(); }
-            await _mediator.Send(new MergeCookieFavoritesCommand(userId));
-            return NoContent();
+            return Ok(await _mediator.Send(new UpdateFavoriteProductCommand(product)));
         }
     }
 

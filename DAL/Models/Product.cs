@@ -17,15 +17,19 @@ namespace DAL.Models
         public Boolean IsCouponApplicable { get; set; }
         public Boolean IsInStock { get; set; }
 
-        [ForeignKey("CategoryId")]
-        public Guid CategoryId { get; set; }
-        public Category Category { get; set; } = null!;
+
+        [ForeignKey("SubcategoryId")]
+        public Guid SubcategoryId { get; set; }
+        public Subcategory Subcategory { get; set; } = null!;
         public IEnumerable<Stock> Stocks { get; set; } = new List<Stock>();
         public IEnumerable<ProductImage> Images { get; set; } = new List<ProductImage>();
         public IEnumerable<Review> Reviews { get; set; } = new List<Review>();
         public IEnumerable<ViewedProduct> ViewedProducts { get; set; } = new List<ViewedProduct>();
         public IEnumerable<FavoriteProduct> FavoriteProducts { get; set; } = new List<FavoriteProduct>();
+        public IEnumerable<ComparedProduct> ComparedProducts { get; set; } = new List<ComparedProduct>();
         public IEnumerable<CartProduct> CartProducts { get; set; } = new List<CartProduct>();
+        public IEnumerable<ProductAttibuteGroup> ProductAttibuteGroups { get; set; } = new List<ProductAttibuteGroup>();
+
 
     }
 }

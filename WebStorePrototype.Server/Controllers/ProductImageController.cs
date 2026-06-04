@@ -56,5 +56,12 @@ namespace WebStorePrototype.Server.Controllers
             return NoContent();
         }
 
+        [HttpGet("batch")]
+        public async Task<ActionResult<IEnumerable<ProductImage>>> Batch(List<Guid> ids)
+        {
+            var productImages = await _mediator.Send(new GetBatchQuery<ProductImage>(ids));
+            return Ok(productImages);
+        }
+
     }
 }

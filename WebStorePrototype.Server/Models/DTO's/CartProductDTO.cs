@@ -1,8 +1,8 @@
-﻿using DAL;
+﻿using WebStorePrototype.Server.Models.Base;
 
 namespace WebStorePrototype.Server.Models.DTO_s
 {
-    public class CartProductDTO : Entity
+    public class CartProductDTO : EntityDTO
     {
         public Guid ProductId { get; set; }
         public String ProductName { get; set; } = null!;

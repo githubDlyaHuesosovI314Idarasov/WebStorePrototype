@@ -37,13 +37,40 @@ namespace DAL.Migrations
                     b.ToTable("CaroselImages");
                 });
 
+            modelBuilder.Entity("DAL.Models.CartProduct", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("CartProducts");
+                });
+
             modelBuilder.Entity("DAL.Models.Category", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Route")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -52,36 +79,45 @@ namespace DAL.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("DAL.Models.ComparedProducts", b =>
+            modelBuilder.Entity("DAL.Models.ComparedProduct", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
+
+                    b.Property<Guid>("SubcategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("SubcategoryId");
 
                     b.ToTable("ComparedProducts");
                 });
 
-            modelBuilder.Entity("DAL.Models.FavoriteProducts", b =>
+            modelBuilder.Entity("DAL.Models.FavoriteProduct", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("ProductId");
 
                     b.ToTable("FavoriteProducts");
                 });
@@ -115,12 +151,11 @@ namespace DAL.Migrations
                     b.Property<long>("TotalAmount")
                         .HasColumnType("bigint");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Orders");
                 });
@@ -131,11 +166,9 @@ namespace DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("CategoryId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("ComparedProductsId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("Brand")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -144,10 +177,10 @@ namespace DAL.Migrations
                     b.Property<long?>("DiscountedPrice")
                         .HasColumnType("bigint");
 
-                    b.Property<Guid?>("FavoriteProductsId")
-                        .HasColumnType("uuid");
-
                     b.Property<bool>("IsCouponApplicable")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsInStock")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsOnSale")
@@ -163,17 +196,69 @@ namespace DAL.Migrations
                     b.Property<long>("Price")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("SKU")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("SubcategoryId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("ComparedProductsId");
-
-                    b.HasIndex("FavoriteProductsId");
 
                     b.HasIndex("OrderId");
 
+                    b.HasIndex("SubcategoryId");
+
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("DAL.Models.ProductAttibuteGroup", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("GroupName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SubcategoryId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("SubcategoryId");
+
+                    b.ToTable("ProductAttibuteGroups");
+                });
+
+            modelBuilder.Entity("DAL.Models.ProductAttribute", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ProductAttibuteGroupId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductAttibuteGroupId");
+
+                    b.ToTable("ProductAttributes");
                 });
 
             modelBuilder.Entity("DAL.Models.ProductImage", b =>
@@ -194,6 +279,36 @@ namespace DAL.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("ProductImages");
+                });
+
+            modelBuilder.Entity("DAL.Models.Review", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<double>("Rating")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("DAL.Models.Stock", b =>
@@ -220,52 +335,91 @@ namespace DAL.Migrations
                     b.ToTable("Stocks");
                 });
 
-            modelBuilder.Entity("DAL.Models.User", b =>
+            modelBuilder.Entity("DAL.Models.Subcategory", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Email")
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsEmailVerified")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Nickname")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Password")
+                    b.Property<string>("Route")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("Subcategories");
                 });
 
-            modelBuilder.Entity("DAL.Models.ComparedProducts", b =>
+            modelBuilder.Entity("DAL.Models.ViewedProduct", b =>
                 {
-                    b.HasOne("DAL.Models.User", "User")
-                        .WithOne("ComparedProducts")
-                        .HasForeignKey("DAL.Models.ComparedProducts", "UserId")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("WhenViewed")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ViewedProducts");
+                });
+
+            modelBuilder.Entity("DAL.Models.CartProduct", b =>
+                {
+                    b.HasOne("DAL.Models.Product", "Product")
+                        .WithMany("CartProducts")
+                        .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("User");
+                    b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("DAL.Models.FavoriteProducts", b =>
+            modelBuilder.Entity("DAL.Models.ComparedProduct", b =>
                 {
-                    b.HasOne("DAL.Models.User", "User")
-                        .WithOne("FavoriteProducts")
-                        .HasForeignKey("DAL.Models.FavoriteProducts", "UserId")
+                    b.HasOne("DAL.Models.Product", "Product")
+                        .WithMany("ComparedProducts")
+                        .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("User");
+                    b.HasOne("DAL.Models.Subcategory", "Subcategory")
+                        .WithMany("ComparedProducts")
+                        .HasForeignKey("SubcategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Subcategory");
+                });
+
+            modelBuilder.Entity("DAL.Models.FavoriteProduct", b =>
+                {
+                    b.HasOne("DAL.Models.Product", "Product")
+                        .WithMany("FavoriteProducts")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("DAL.Models.Location", b =>
@@ -306,44 +460,66 @@ namespace DAL.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DAL.Models.Order", b =>
-                {
-                    b.HasOne("DAL.Models.User", "User")
-                        .WithMany("Orders")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("DAL.Models.Product", b =>
                 {
-                    b.HasOne("DAL.Models.Category", "Category")
-                        .WithMany("Products")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DAL.Models.ComparedProducts", null)
-                        .WithMany("Products")
-                        .HasForeignKey("ComparedProductsId");
-
-                    b.HasOne("DAL.Models.FavoriteProducts", null)
-                        .WithMany("Products")
-                        .HasForeignKey("FavoriteProductsId");
-
                     b.HasOne("DAL.Models.Order", null)
                         .WithMany("Products")
                         .HasForeignKey("OrderId");
 
-                    b.Navigation("Category");
+                    b.HasOne("DAL.Models.Subcategory", "Subcategory")
+                        .WithMany("Products")
+                        .HasForeignKey("SubcategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Subcategory");
+                });
+
+            modelBuilder.Entity("DAL.Models.ProductAttibuteGroup", b =>
+                {
+                    b.HasOne("DAL.Models.Product", "Product")
+                        .WithMany("ProductAttibuteGroups")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DAL.Models.Subcategory", "Subcategory")
+                        .WithMany("ProductAttibuteGroups")
+                        .HasForeignKey("SubcategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Subcategory");
+                });
+
+            modelBuilder.Entity("DAL.Models.ProductAttribute", b =>
+                {
+                    b.HasOne("DAL.Models.ProductAttibuteGroup", "ProductAttibuteGroup")
+                        .WithMany("ProductAttributes")
+                        .HasForeignKey("ProductAttibuteGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ProductAttibuteGroup");
                 });
 
             modelBuilder.Entity("DAL.Models.ProductImage", b =>
                 {
                     b.HasOne("DAL.Models.Product", "Product")
                         .WithMany("Images")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("DAL.Models.Review", b =>
+                {
+                    b.HasOne("DAL.Models.Product", "Product")
+                        .WithMany("Reviews")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -370,19 +546,31 @@ namespace DAL.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("DAL.Models.Subcategory", b =>
+                {
+                    b.HasOne("DAL.Models.Category", "Category")
+                        .WithMany("Subcategories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("DAL.Models.ViewedProduct", b =>
+                {
+                    b.HasOne("DAL.Models.Product", "Product")
+                        .WithMany("ViewedProducts")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("DAL.Models.Category", b =>
                 {
-                    b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("DAL.Models.ComparedProducts", b =>
-                {
-                    b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("DAL.Models.FavoriteProducts", b =>
-                {
-                    b.Navigation("Products");
+                    b.Navigation("Subcategories");
                 });
 
             modelBuilder.Entity("DAL.Models.Location", b =>
@@ -397,20 +585,35 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("DAL.Models.Product", b =>
                 {
+                    b.Navigation("CartProducts");
+
+                    b.Navigation("ComparedProducts");
+
+                    b.Navigation("FavoriteProducts");
+
                     b.Navigation("Images");
 
+                    b.Navigation("ProductAttibuteGroups");
+
+                    b.Navigation("Reviews");
+
                     b.Navigation("Stocks");
+
+                    b.Navigation("ViewedProducts");
                 });
 
-            modelBuilder.Entity("DAL.Models.User", b =>
+            modelBuilder.Entity("DAL.Models.ProductAttibuteGroup", b =>
                 {
-                    b.Navigation("ComparedProducts")
-                        .IsRequired();
+                    b.Navigation("ProductAttributes");
+                });
 
-                    b.Navigation("FavoriteProducts")
-                        .IsRequired();
+            modelBuilder.Entity("DAL.Models.Subcategory", b =>
+                {
+                    b.Navigation("ComparedProducts");
 
-                    b.Navigation("Orders");
+                    b.Navigation("ProductAttibuteGroups");
+
+                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }

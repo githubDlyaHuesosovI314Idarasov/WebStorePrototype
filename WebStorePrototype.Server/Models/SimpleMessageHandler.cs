@@ -37,7 +37,6 @@ namespace WebStorePrototype.Server.Models
             try
             {
                 var simpleMessage = JsonSerializer.Deserialize<SimpleMessage>(message);
-
             }
             catch (Exception ex)
             {

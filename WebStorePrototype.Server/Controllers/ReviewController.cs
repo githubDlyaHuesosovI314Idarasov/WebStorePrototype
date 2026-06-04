@@ -55,6 +55,13 @@ namespace WebStorePrototype.Server.Controllers
             await _mediator.Send(new DeleteCommand<Review>(id));
             return NoContent();
         }
+
+        [HttpGet("batch")]
+        public async Task<ActionResult<IEnumerable<Review>>> Batch(List<Guid> ids)
+        {
+            var reviews = await _mediator.Send(new GetBatchQuery<Review>(ids));
+            return Ok(reviews);
+        }
     }
 } 
 

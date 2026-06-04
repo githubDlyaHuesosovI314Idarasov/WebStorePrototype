@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using WebStorePrototype.Server.Services;
-using Order = DAL.Models.Order;
-using StackExchange.Redis;
+﻿using DAL.Models;
 using DAL.Repos;
-using Microsoft.EntityFrameworkCore;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 using WebStorePrototype.Server.Features.Base;
 using WebStorePrototype.Server.Features.CrudHandlers;
+using WebStorePrototype.Server.Services;
+using Order = DAL.Models.Order;
 
 namespace WebStorePrototype.Server.Controllers
 {
@@ -53,6 +54,13 @@ namespace WebStorePrototype.Server.Controllers
         {
             await _mediator.Send(new DeleteCommand<Order>(id));
             return NoContent();
+        }
+
+        [HttpGet("batch")]
+        public async Task<ActionResult<IEnumerable<Order>>> Batch(List<Guid> ids)
+        {
+            var orders = await _mediator.Send(new GetBatchQuery<Order>(ids));
+            return Ok(orders);
         }
     }
 }

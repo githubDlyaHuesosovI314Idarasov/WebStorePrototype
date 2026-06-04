@@ -7,14 +7,11 @@ using System.Text;
 
 namespace DAL.EF.Configurations
 {
-    public class CompareProductsConfiguration : IEntityTypeConfiguration<ComparedProducts>
+    public class ComparedProductConfiguration : IEntityTypeConfiguration<ComparedProduct>
     {
-        public void Configure(EntityTypeBuilder<ComparedProducts> builder)
+        public void Configure(EntityTypeBuilder<ComparedProduct> builder)
         {
-            builder.HasOne(x => x.User)
-                   .WithOne(x => x.ComparedProducts)
-                   .HasForeignKey<ComparedProducts>(x => x.UserId)
-                   .OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(x => x.Product).WithMany(x => x.ComparedProducts).HasForeignKey(x => x.ProductId);
         }
     }
 }

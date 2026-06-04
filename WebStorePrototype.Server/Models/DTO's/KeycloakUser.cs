@@ -5,13 +5,13 @@ namespace WebStorePrototype.Server.Models.DTO_s
     public class KeycloakUser
     {
         [JsonPropertyName("id")]
-        public String Id { get; set; }
-        
+        public String Id { get; set; } = null!;
+
         [JsonPropertyName("username")]
-        public String Username { get; set; }
-        
+        public String Username { get; set; } = null!;
+
         [JsonPropertyName("Email")]
-        public String Email { get; set; }
+        public String Email { get; set; } = null!;
         
         [JsonPropertyName("firstname")]
         public String? FirstName { get; set; }

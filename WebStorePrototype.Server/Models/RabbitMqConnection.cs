@@ -1,5 +1,6 @@
 ﻿using RabbitMQ.Client;
 using WebStorePrototype.Server.Models.Base;
+using WebStorePrototype.Server.Models.Settings;
 
 namespace WebStorePrototype.Server.Models
 {

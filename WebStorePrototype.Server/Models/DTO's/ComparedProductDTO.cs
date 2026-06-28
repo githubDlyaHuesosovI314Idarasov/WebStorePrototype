@@ -3,7 +3,7 @@ using WebStorePrototype.Server.Models.Base;
 
 namespace WebStorePrototype.Server.Models.DTO_s
 {
-    public class ComparedProductDTO : EntityDTO
+    public class ComparedProductDTO
     {
         public Guid ProductId { get; set; }
         public String ProductName { get; set; } = null!;

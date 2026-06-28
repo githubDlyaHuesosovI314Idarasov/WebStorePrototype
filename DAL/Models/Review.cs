@@ -8,11 +8,10 @@ namespace DAL.Models
     public class Review : Entity
     {
         public Double Rating { get; set; }
-        public String Comment { get; set; } = null!;
-        public String UserId { get; set; } = null!;
         public Guid ProductId { get; set; }
         public DateTime CreatedAt { get; set; }
         public Product Product { get; set; } = null!;
-        
+        public Comment UserComment { get; set; } = null!;
+        public IEnumerable<Comment> Comments { get; set; } = new List<Comment>();
     }
 }

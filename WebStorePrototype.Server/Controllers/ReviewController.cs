@@ -1,4 +1,6 @@
-﻿using DAL.Models;
+﻿using AutoMapper;
+using Contracts;
+using DAL.Models;
 using DAL.Repos;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -15,10 +17,11 @@ namespace WebStorePrototype.Server.Controllers
     public class ReviewController : ControllerBase
     {
         private readonly IMediator _mediator;
-
-        public ReviewController(IMediator mediator)
+        private readonly IMapper _mapper;
+        public ReviewController(IMediator mediator, IMapper mapper)
         {
             _mediator = mediator;
+            _mapper = mapper;
         }
 
         [HttpGet("{id:guid}")]
@@ -61,6 +64,14 @@ namespace WebStorePrototype.Server.Controllers
         {
             var reviews = await _mediator.Send(new GetBatchQuery<Review>(ids));
             return Ok(reviews);
+        }
+
+        [HttpPost("publish")]
+        public async Task<IActionResult> Publish(Review review)
+        {
+            var reviewNotify = _mapper.Map<ReviewNotify>(review);
+            await _mediator.Publish(reviewNotify);
+            return Ok();
         }
     }
 } 

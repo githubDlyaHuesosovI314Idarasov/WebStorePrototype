@@ -13,6 +13,61 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Services\CRM\Agreements\**" />
+    <Compile Remove="Services\CRM\Clients\**" />
+    <Compile Remove="Services\CRM\Contractors\**" />
+    <Compile Remove="Services\CRM\Delivers\**" />
+    <Compile Remove="Services\CRM\Materials\**" />
+    <Compile Remove="Services\CRM\Offices\**" />
+    <Compile Remove="Services\CRM\Payments\**" />
+    <Compile Remove="Services\CRM\Products\**" />
+    <Compile Remove="Services\CRM\Sources\**" />
+    <Compile Remove="Services\CRM\Tasks\**" />
+    <Compile Remove="Services\CRM\Transfrers\**" />
+    <Compile Remove="Services\CRM\Users\**" />
+    <Compile Remove="Services\NovaPoshta\**" />
+    <Content Remove="Services\CRM\Agreements\**" />
+    <Content Remove="Services\CRM\Clients\**" />
+    <Content Remove="Services\CRM\Contractors\**" />
+    <Content Remove="Services\CRM\Delivers\**" />
+    <Content Remove="Services\CRM\Materials\**" />
+    <Content Remove="Services\CRM\Offices\**" />
+    <Content Remove="Services\CRM\Payments\**" />
+    <Content Remove="Services\CRM\Products\**" />
+    <Content Remove="Services\CRM\Sources\**" />
+    <Content Remove="Services\CRM\Tasks\**" />
+    <Content Remove="Services\CRM\Transfrers\**" />
+    <Content Remove="Services\CRM\Users\**" />
+    <Content Remove="Services\NovaPoshta\**" />
+    <EmbeddedResource Remove="Services\CRM\Agreements\**" />
+    <EmbeddedResource Remove="Services\CRM\Clients\**" />
+    <EmbeddedResource Remove="Services\CRM\Contractors\**" />
+    <EmbeddedResource Remove="Services\CRM\Delivers\**" />
+    <EmbeddedResource Remove="Services\CRM\Materials\**" />
+    <EmbeddedResource Remove="Services\CRM\Offices\**" />
+    <EmbeddedResource Remove="Services\CRM\Payments\**" />
+    <EmbeddedResource Remove="Services\CRM\Products\**" />
+    <EmbeddedResource Remove="Services\CRM\Sources\**" />
+    <EmbeddedResource Remove="Services\CRM\Tasks\**" />
+    <EmbeddedResource Remove="Services\CRM\Transfrers\**" />
+    <EmbeddedResource Remove="Services\CRM\Users\**" />
+    <EmbeddedResource Remove="Services\NovaPoshta\**" />
+    <None Remove="Services\CRM\Agreements\**" />
+    <None Remove="Services\CRM\Clients\**" />
+    <None Remove="Services\CRM\Contractors\**" />
+    <None Remove="Services\CRM\Delivers\**" />
+    <None Remove="Services\CRM\Materials\**" />
+    <None Remove="Services\CRM\Offices\**" />
+    <None Remove="Services\CRM\Payments\**" />
+    <None Remove="Services\CRM\Products\**" />
+    <None Remove="Services\CRM\Sources\**" />
+    <None Remove="Services\CRM\Tasks\**" />
+    <None Remove="Services\CRM\Transfrers\**" />
+    <None Remove="Services\CRM\Users\**" />
+    <None Remove="Services\NovaPoshta\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="16.1.1" />
     <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
@@ -39,9 +94,13 @@
 	  
 <PackageReference Include="Npgsql" Version="10.0.1" />
 	  
-<PackageReference Include="Polly" Version="8.6.6" />
+<PackageReference Include="Polly" Version="8.7.0" />
 	  
 <PackageReference Include="RabbitMQ.Client" Version="7.2.1" />
+	  
+<PackageReference Include="Refit" Version="11.2.0" />
+	  
+<PackageReference Include="Refit.HttpClientFactory" Version="11.2.0" />
 	  
 <PackageReference Include="Seq.Extensions.Logging" Version="9.0.0" />
 	  
@@ -55,6 +114,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Contracts\Contracts.csproj" />
     <ProjectReference Include="..\DAL\DAL.csproj" />
     <ProjectReference Include="..\webstoreapp.client\webstoreprototype.client.esproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>

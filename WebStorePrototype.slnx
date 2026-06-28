@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="Contracts/Contracts.csproj" Id="e2a2aa17-ecdf-4684-9e08-6e419596c53b" />
   <Project Path="DAL/DAL.csproj" Id="2a3db3c0-542e-434e-b27b-b258ab5d4a6d" />
   <Project Path="docker-compose.dcproj">
     <Build />

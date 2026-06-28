@@ -2,6 +2,7 @@
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text.Json;
+using WebStorePrototype.Server.Models.Settings;
 
 namespace WebStorePrototype.Server.Models
 {

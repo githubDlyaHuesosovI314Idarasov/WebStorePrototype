@@ -1,5 +1,8 @@
-﻿using DAL.Models;
+﻿using AutoMapper;
+using Contracts;
+using DAL.Models;
 using DAL.Repos;
+using MassTransit;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,9 +19,11 @@ namespace WebStorePrototype.Server.Controllers
     public class OrderController : Controller
     {
         private readonly IMediator _mediator;
-        public OrderController(IMediator mediator)
+        private readonly IMapper _mapper;
+        public OrderController(IMediator mediator, IMapper mapper)
         {
             _mediator = mediator;
+            _mapper = mapper;
         }
 
         [HttpGet("{id:guid}")]
@@ -61,6 +66,13 @@ namespace WebStorePrototype.Server.Controllers
         {
             var orders = await _mediator.Send(new GetBatchQuery<Order>(ids));
             return Ok(orders);
+        }
+
+        [HttpPost("publish")]
+        public async Task Publish(Order order)
+        {
+            var createdOrder = _mapper.Map<OrderCreated>(order);
+            await _mediator.Send(new PublishCommand<OrderCreated>(createdOrder));
         }
     }
 }

@@ -11,7 +11,16 @@ namespace DAL.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<Review> builder)
         {
-            
+            builder.OwnsOne(x => x.UserComment, p =>
+            {
+                p.Property(c => c.Text).HasMaxLength(1024);
+                p.Property(c => c.UserId);
+            });
+            builder.OwnsMany(x => x.Comments, p =>
+            {
+                p.Property(c => c.Text).HasMaxLength(1024);
+                p.Property(c => c.UserId);
+            });
         }
     }
 }

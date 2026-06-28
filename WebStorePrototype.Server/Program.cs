@@ -12,6 +12,9 @@ using MediatR;
 using WebStorePrototype.Server.Features.Behaviors;
 using Microsoft.Extensions.Caching.Hybrid;
 using WebStorePrototype.Server.Models.Mapping;
+using MassTransit;
+using Redis.OM;
+using WebStorePrototype.Server.Models.Settings;
 
 
 Log.Logger = new LoggerConfiguration()
@@ -38,8 +41,11 @@ try
         cfg.AddProfile<FavoriteProductProfile>();
         cfg.AddProfile<ProductProfile>();
         cfg.AddProfile<ViewedProductProfile>();
-
+        cfg.AddProfile<OrderProfile>();
+        cfg.AddProfile<ReviewProfile>();
+        cfg.AddProfile<StockProfile>();
     });
+
     builder.Services.AddSignalR();
     builder.Services.AddValidatorsFromAssemblyContaining<Program>();
     builder.Services.AddSwaggerGen();
@@ -59,6 +65,7 @@ try
         Password = builder.Configuration.GetSection("Redis:Password").Value
     });
     builder.Services.Configure<KeycloakConfiguration>(builder.Configuration.GetSection("Keycloak"));
+    builder.Services.Configure<RabbitMQSettings>(builder.Configuration.GetSection("RabbitMQ"));
     builder.Services.Configure<CookieOptions>(options =>
     {
         options.Expires = DateTimeOffset.UtcNow.AddDays(30);
@@ -68,9 +75,26 @@ try
     });
     builder.Services.AddKeycloakService(builder.Configuration);
     builder.Services.AddRedisService(builder.Configuration);
+    builder.Services.AddCRMServices(builder.Configuration);
     builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
     builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 
+    var rabbitMqSettings = builder.Configuration.GetSection("RabbitMQ").Get<RabbitMQSettings>()!;
+
+    builder.Services.AddMassTransit(config =>
+    {
+        config.AddConsumers(typeof(Program).Assembly);
+
+        config.UsingRabbitMq((context, cfg) =>
+        {
+            cfg.Host(rabbitMqSettings.Host, h =>
+            {
+                h.Username(rabbitMqSettings.UserName);
+                h.Password(rabbitMqSettings.Password);
+            });
+            cfg.ConfigureEndpoints(context);
+        });
+    });
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
         {
@@ -95,6 +119,7 @@ try
     builder.Services.AddSignalR();
 
 
+    if (builder.Environment.IsDevelopment())
     if (builder.Environment.IsDevelopment())
     {
         builder.Services.AddExternalWebStoreDBLocalContext(builder.Configuration);  // for local development dbs

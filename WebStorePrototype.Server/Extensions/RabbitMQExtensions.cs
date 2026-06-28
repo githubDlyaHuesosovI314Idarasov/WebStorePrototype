@@ -1,5 +1,6 @@
 ﻿using WebStorePrototype.Server.Models;
 using WebStorePrototype.Server.Models.Base;
+using WebStorePrototype.Server.Models.Settings;
 
 namespace WebStorePrototype.Server.Extensions
 {

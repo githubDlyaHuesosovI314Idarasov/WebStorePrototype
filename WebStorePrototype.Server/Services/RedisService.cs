@@ -17,7 +17,6 @@ namespace WebStorePrototype.Server.Services
         public RedisService(IConnectionMultiplexer multiplexer, ResiliencePipelineProvider<String> pipelineProvider) 
         {
             _redis = multiplexer.GetDatabase();
-
             _pipeline = pipelineProvider.GetPipeline("redis-pipeline");
         }
         

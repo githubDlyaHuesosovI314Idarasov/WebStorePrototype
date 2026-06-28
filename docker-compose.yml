@@ -17,6 +17,7 @@ services:
     depends_on:
         - db
         - keycloak
+        - rabbitmq 
   client:
     container_name: webstoreprototype.client
     build:
@@ -103,6 +104,23 @@ services:
       - redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - internal-network
+
+  rabbitmq:
+    image: rabbitmq:latest
+    container_name: webstoreprototype.rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
       interval: 10s
       timeout: 5s
       retries: 3

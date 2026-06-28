@@ -2,7 +2,7 @@
 
 namespace WebStorePrototype.Server.Models.DTO_s
 {
-    public class FavoriteProductDTO : EntityDTO
+    public class FavoriteProductDTO 
     {
         public Guid ProductId { get; set; }
         public String ProductName { get; set; } = null!;
